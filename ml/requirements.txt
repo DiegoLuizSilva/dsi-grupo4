@@ -1,0 +1,7 @@
+pandas
+scikit-learn
+imbalanced-learn
+matplotlib
+seaborn
+shap
+jupyterpython -m pip install --upgrade pip
