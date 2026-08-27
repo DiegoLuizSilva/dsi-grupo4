@@ -5,4 +5,4 @@ matplotlib
 seaborn
 shap
 plotly
-jupyterpython -m pip install --upgrade pip
+jupyter
