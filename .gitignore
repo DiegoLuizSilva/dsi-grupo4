@@ -11,3 +11,5 @@ venv/
 *.joblib
 .ipynb_checkpoints/
 .expo/
+api/venv/
+api/churnguard.db
