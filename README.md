@@ -27,7 +27,7 @@ O modelo é treinado sobre o **Iranian Churn Dataset** (UCI Machine Learning Rep
 |---|---|
 | **Frontend** | React Native (Expo) — telas de CRUD, formulário de predição, resultado e histórico |
 | **Backend** | API em Python (Flask ou FastAPI), expondo `/predict` e os endpoints do CRUD |
-| **Banco de dados** | SQLite local (`expo-sqlite`) para CRUD e histórico; PostgreSQL opcional no backend hospedado |
+| **Banco de dados** | Firebase (Cloud Firestore) para o CRUD, armazenamento e histórico do aplicativo em tempo real; PostgreSQL opcional no backend hospedado para a API e Machine Learning. |
 | **Machine Learning** | Python — `pandas`, `scikit-learn`, `imbalanced-learn`, `matplotlib`, `seaborn`, `shap` |
 | **Versionamento** | Repositório único no GitHub com as pastas `/app`, `/api` e `/ml`, com branches por frente de trabalho |
 
@@ -50,11 +50,11 @@ Cada integrante é responsável por uma frente de trabalho ao longo das 9 semana
 
 | Pessoa | Frente principal | Responsabilidade |
 |---|---|---|
-| **Lucas** | Tech Lead / Backend | Repositório, board, API Python, integração app↔API, consolidação do artigo |
-| **Rio** | Dados e não-supervisionado | Limpeza, EDA, gráficos, clusterização (KMeans, cotovelo, silhueta) |
-| **Diego** | Supervisionado | Pré-processamento, treino/teste, comparação de algoritmos, balanceamento, SHAP |
-| **Poroca** | Frontend — CRUD | Navegação, listagem, cadastro, edição e exclusão de clientes, persistência |
-| **Schima** | Frontend — Predição e UX | Formulário de predição, tela de resultado, histórico, design e formatação do artigo |
+| **Lucas Guerra** | Tech Lead / Backend | Repositório, board, API Python, integração app↔API, consolidação do artigo |
+| **Artur Rio** | Dados e não-supervisionado | Limpeza, EDA, gráficos, clusterização (KMeans, cotovelo, silhueta) |
+| **Diego Luiz** | Supervisionado | Pré-processamento, treino/teste, comparação de algoritmos, balanceamento, SHAP |
+| **Pedro Poroca** | Frontend — CRUD | Navegação, listagem, cadastro, edição e exclusão de clientes, persistência |
+| **Arthur Schmitz** | Frontend — Predição e UX | Formulário de predição, tela de resultado, histórico, design e formatação do artigo |
 
 ---
 
