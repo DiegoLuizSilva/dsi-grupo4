@@ -1,9 +1,22 @@
 export interface Cliente {
   id?: string;
-  nome: string;
+  nome: string; 
   cpf: string;
-  idade: number;
-  createdAt: Date;
+  callFailure: number; 
+  complains: boolean; 
+  subscriptionLength: number; 
+  chargeAmount: number; 
+  secondsOfUse: number; 
+  frequencyOfUse: number; 
+  frequencyOfSMS: number; 
+  distinctCalledNumbers: number; 
+  status: boolean; 
+  age: number; 
+  ageGroup: number;    
+  tariffPlan: number;  
+  customerValue: number; 
+  churn: boolean;       
+  createdAt?: Date;
 }
 
 export interface Avaliacao {
