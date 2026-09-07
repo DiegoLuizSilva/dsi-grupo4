@@ -26,17 +26,17 @@ O modelo é treinado sobre o **Iranian Churn Dataset** (UCI Machine Learning Rep
 | Camada | Tecnologia |
 |---|---|
 | **Frontend** | React Native (Expo) — telas de CRUD, formulário de predição, resultado e histórico |
-| **Backend** | API em Python (Flask ou FastAPI), expondo `/predict` e os endpoints do CRUD |
-| **Banco de dados** | Firebase (Cloud Firestore) para o CRUD, armazenamento e histórico do aplicativo em tempo real; PostgreSQL opcional no backend hospedado para a API e Machine Learning. |
+| **Backend** | API em Python (FastAPI), expondo `/predict` e os endpoints do CRUD |
+| **Banco de dados** | Firebase (Cloud Firestore) para o CRUD, armazenamento e histórico do aplicativo em tempo real e API |
 | **Machine Learning** | Python — `pandas`, `scikit-learn`, `imbalanced-learn`, `matplotlib`, `seaborn`, `shap` |
-| **Versionamento** | Repositório único no GitHub com as pastas `/app`, `/api` e `/ml`, com branches por frente de trabalho |
+| **Versionamento** | Repositório único no GitHub com as pastas `/app`, `/api` e `/ml`, membros devem usar o git pull antes de commitar na main  |
 
 > ⚠️ O modelo `scikit-learn` **não roda dentro do React Native** — por isso a API Python é obrigatória e precisa estar de pé para qualquer demonstração.
 
 ### Estrutura de pastas
 
 ```
-churnguard/
+dsi-grupo4/
 ├── app/     # Aplicativo React Native (Expo)
 ├── api/     # API Python (Flask/FastAPI) — CRUD + /predict
 └── ml/      # Notebooks, dados e modelos de Machine Learning
@@ -88,10 +88,12 @@ Cada integrante é responsável por uma frente de trabalho ao longo das 9 semana
 ## 🧠 Sobre o modelo de Machine Learning
 
 - **Dataset:** Iranian Churn Dataset (UCI) — 3.150 instâncias, 13 atributos, alvo binário (`Churn`: 0 ou 1).
-- **Não-supervisionado:** clusterização (KMeans, com método do cotovelo e coeficiente de silhueta) para identificar perfis de clientes.
-- **Supervisionado:** comparação entre Random Forest, SVM, KNN e Regressão Logística, com balanceamento de classes (SMOTE/undersampling) e tuning de hiperparâmetros.
+- **Não-supervisionado:** clusterização (KMeans, com método do cotovelo e coeficiente de silhueta) para identificar e caracterizar perfis de clientes. O algoritmo não recebe a coluna `Churn`; o alvo só é cruzado com os grupos depois da formação dos clusters.
+- **Supervisionado:** comparação entre SVM, KNN e Random Forest, com balanceamento de classes (SMOTE/undersampling) e tuning de hiperparâmetros.
+- **Avaliação:** como 84,29% da base pertence à classe sem cancelamento, a acurácia não é usada isoladamente. A discussão prioriza precisão, revocação e F1-score da classe de cancelamento, além das médias macro e ponderada.
 - **Explicabilidade:** uso de **SHAP** para traduzir a saída do modelo final em fatores de risco legíveis por cliente.
 - **Faixas de risco:** como o alvo do dataset é binário, os níveis Alto/Médio/Baixo são derivados da probabilidade prevista (`predict_proba`), com pontos de corte definidos e justificados no artigo (ex.: `<0,30` baixo, `0,30–0,65` médio, `>0,65` alto).
+- **Independência das análises:** o agrupamento e a classificação são análises complementares sobre o mesmo conjunto de dados, respondendo a perguntas distintas. Os clusters não alimentam os classificadores.
 
 ---
 
@@ -108,11 +110,13 @@ Cada integrante é responsável por uma frente de trabalho ao longo das 9 semana
 ```bash
 cd api
 python -m venv venv
-source venv/bin/activate  # ou venv\Scripts\activate no Windows
+venv\Scripts\activate        # Windows
+source venv/bin/activate     # Mac/Linux
 pip install -r requirements.txt
-# instruções de execução serão atualizadas
-```
+uvicorn main:app --reload --host 0.0.0.0 --port 8000
 
+Documentação interativa em http://localhost:8000/docs.
+```
 ### App (React Native / Expo)
 ```bash
 cd app
@@ -133,7 +137,7 @@ jupyter notebook
 
 O projeto é acompanhado de um artigo científico, produzido em paralelo ao desenvolvimento, cobrindo:
 
-- Duas perguntas de pesquisa (uma sobre aprendizado **não-supervisionado**, outra sobre **supervisionado**);
+- Três perguntas de pesquisa (uma **não-supervisionada**, uma **supervisionada** e uma sobre **camada de aplicação**);
 - Metodologia mapeada às etapas do **KDD**;
 - Resultados de clusterização e classificação;
 - Declaração de uso de IA.
