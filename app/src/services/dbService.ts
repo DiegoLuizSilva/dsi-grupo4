@@ -49,3 +49,4 @@ export const listarClientes = async (termoBusca?: string) => {
     throw error;
   }
 };
+

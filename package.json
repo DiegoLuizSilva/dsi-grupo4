@@ -1,5 +1,7 @@
 {
   "dependencies": {
+    "@react-navigation/bottom-tabs": "^7.18.18",
+    "@react-navigation/native": "^7.3.18",
     "firebase": "^12.18.0"
   }
 }

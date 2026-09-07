@@ -14,3 +14,5 @@ venv/
 .expo/
 api/venv/
 api/churnguard.db
+api/serviceAccountKey.json
+.vscode/

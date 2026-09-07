@@ -1,7 +1,6 @@
 import { avaliarRisco } from './api';
 
 export async function analisarRiscoCliente(clienteDoFirebase: any) {
-  // Traduz de camelCase (Firebase) para snake_case e tipos da API Python
   const payload = {
     call_failure: clienteDoFirebase.callFailure,
     complains: clienteDoFirebase.complains ? 1 : 0,
@@ -15,14 +14,16 @@ export async function analisarRiscoCliente(clienteDoFirebase: any) {
     tariff_plan: clienteDoFirebase.tariffPlan,
     status: clienteDoFirebase.status ? 1 : 2,
     age: clienteDoFirebase.age,
-    customer_value: clienteDoFirebase.customerValue || 0
+    customer_value: clienteDoFirebase.customerValue || 0,
   };
+
+  console.log("PAYLOAD ENVIADO PARA A API:", JSON.stringify(payload, null, 2));
 
   try {
     const resultado = await avaliarRisco(payload);
-    return resultado; // Retorna probabilidade, faixa e fatores de risco
-  } catch (erro) {
-    console.error("Erro ao avaliar risco do cliente:", erro);
+    return resultado;
+  } catch (erro: any) {
+    console.error("ERRO COMPLETO DA REQUISICAO:", erro?.detalhes || erro?.message || erro);
     throw erro;
   }
 }

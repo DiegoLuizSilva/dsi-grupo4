@@ -11,19 +11,17 @@ import { Platform } from 'react-native';
 // No emulador Android o localhost do computador e 10.0.2.2.
 // No celular fisico com Expo Go, troque por IP da sua maquina na rede,
 // por exemplo 'http://192.168.0.15:8000'. Descubra com ipconfig ou ifconfig.
-const BASE_URL = Platform.select({
-  android: 'http://10.0.2.2:8000',
-  ios: 'http://localhost:8000',
-  default: 'http://localhost:8000',
-});
+
+const BASE_URL = process.env.EXPO_PUBLIC_API_URL || 'http://localhost:8000';
 
 const TIMEOUT_MS = 8000;
 
 class ApiError extends Error {
-  constructor(mensagem, status) {
+  constructor(mensagem, status, detalhes = null) {
     super(mensagem);
     this.name = 'ApiError';
     this.status = status;
+    this.detalhes = detalhes;
   }
 }
 
@@ -43,11 +41,23 @@ async function requisitar(caminho, opcoes = {}) {
     const corpo = await resposta.json().catch(() => null);
 
     if (!resposta.ok) {
-      const detalhe = corpo && corpo.detail ? corpo.detail : 'Erro na comunicacao com o servidor';
-      throw new ApiError(
-        typeof detalhe === 'string' ? detalhe : 'Dados invalidos',
-        resposta.status,
-      );
+      // Exibe os detalhes brutos retornados pelo Pydantic/FastAPI no terminal do Expo
+      console.log('RESPOSTA DE ERRO DA API (STATUS ' + resposta.status + '):', JSON.stringify(corpo, null, 2));
+
+      let mensagemErro = 'Erro na comunicacao com o servidor';
+
+      if (corpo && corpo.detail) {
+        if (typeof corpo.detail === 'string') {
+          mensagemErro = corpo.detail;
+        } else if (Array.isArray(corpo.detail)) {
+          // Converte a lista de campos invalidos do Pydantic em texto legivel
+          mensagemErro = corpo.detail
+            .map((item) => `${item.loc ? item.loc.join('.') : 'campo'}: ${item.msg}`)
+            .join(' | ');
+        }
+      }
+
+      throw new ApiError(mensagemErro, resposta.status, corpo?.detail);
     }
 
     return corpo;

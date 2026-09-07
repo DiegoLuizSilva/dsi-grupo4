@@ -1,24 +1,33 @@
-"""Contratos de entrada e saida da API do ChurnGuard.
-
-Os nomes dos campos aqui sao a fonte da verdade para o aplicativo.
-Eles correspondem as colunas do Iranian Churn Dataset, normalizadas
-para snake_case (o CSV original usa espacos duplos em algumas colunas).
-"""
+"""Contratos de entrada e saida da API do ChurnGuard."""
 
 from datetime import datetime
 from typing import List, Literal, Optional
-
 from pydantic import BaseModel, Field
 
 
 # ----------------------------------------------------------------- CLIENTES
 
 class ClienteBase(BaseModel):
-    identificador: str = Field(..., min_length=1, max_length=60,
-                               description="Codigo do cliente na operadora")
-    tariff_plan: int = Field(..., ge=1, le=2,
-                             description="1 = pre-pago, 2 = pos-pago")
-    observacao: Optional[str] = Field(None, max_length=300)
+    nome: Optional[str] = None
+    cpf: Optional[str] = None
+    identificador: Optional[str] = None
+    tariff_plan: Optional[int] = Field(None, ge=1, le=2)
+    observacao: Optional[str] = None
+    age: Optional[int] = None
+    call_failure: Optional[int] = None
+    complains: Optional[bool] = None
+    subscription_length: Optional[int] = None
+    charge_amount: Optional[int] = None
+    seconds_of_use: Optional[int] = None
+    frequency_of_use: Optional[int] = None
+    frequency_of_sms: Optional[int] = None
+    distinct_called_numbers: Optional[int] = None
+    status: Optional[bool] = None
+    age_group: Optional[int] = None
+    customer_value: Optional[float] = None
+    churn: Optional[bool] = None
+
+    model_config = {"extra": "allow"}
 
 
 class ClienteCreate(ClienteBase):
@@ -26,14 +35,19 @@ class ClienteCreate(ClienteBase):
 
 
 class ClienteUpdate(BaseModel):
+    nome: Optional[str] = None
     tariff_plan: Optional[int] = Field(None, ge=1, le=2)
-    observacao: Optional[str] = Field(None, max_length=300)
+    observacao: Optional[str] = None
+
+    model_config = {"extra": "allow"}
 
 
 class ClienteOut(ClienteBase):
-    id: int
-    criado_em: datetime
-    atualizado_em: datetime
+    id: str  # Firestore usa IDs alfanuméricos em texto
+    criado_em: Optional[datetime] = None
+    atualizado_em: Optional[datetime] = None
+
+    model_config = {"extra": "allow"}
 
 
 # ----------------------------------------------------------------- PREDICAO
