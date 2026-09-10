@@ -16,3 +16,5 @@ api/venv/
 api/churnguard.db
 api/serviceAccountKey.json
 .vscode/
+api/serviceAccountKey.json
+serviceAccountKey.json

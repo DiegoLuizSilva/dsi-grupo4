@@ -1,137 +1,180 @@
-import React, { useEffect, useState } from 'react';
-import { View, Text, FlatList, StyleSheet, ActivityIndicator, TouchableOpacity, Alert } from 'react-native';
-import { listarClientes } from '../services/dbService';
+import React, { useCallback, useState } from 'react';
+import {
+  ActivityIndicator,
+  Alert,
+  FlatList,
+  StyleSheet,
+  Text,
+  TouchableOpacity,
+  View,
+} from 'react-native';
+import { useFocusEffect, useNavigation } from '@react-navigation/native';
+
+import { listarClientes, removerCliente } from '../services/dbService';
 import { analisarRiscoCliente } from '../services/churnService';
+import { Cliente } from '../types';
 
 export default function ClientList() {
-  const [clientes, setClientes] = useState<any[]>([]);
-  const [loading, setLoading] = useState(true);
+  const navigation = useNavigation<any>();
+  const [clientes, setClientes] = useState<Cliente[]>([]);
+  const [carregando, setCarregando] = useState(true);
+  const [avaliandoId, setAvaliandoId] = useState<string | null>(null);
 
-  // Carrega os dados assim que a tela abre
-  useEffect(() => {
-    carregarClientes();
-  }, []);
-
-  const carregarClientes = async () => {
-    setLoading(true);
+  const carregar = useCallback(async () => {
+    setCarregando(true);
     try {
-      const dados = await listarClientes();
-      setClientes(dados);
-    } catch (error) {
+      setClientes(await listarClientes());
+    } catch (e) {
+      console.error(e);
       Alert.alert('Erro', 'Não foi possível carregar a lista de clientes.');
     } finally {
-      setLoading(false);
+      setCarregando(false);
     }
-  };
+  }, []);
 
-  const handleAvaliarRisco = async (cliente: any) => {
-    try {
-      Alert.alert('Aguarde', 'Calculando risco na API Python...');
-      const resultado = await analisarRiscoCliente(cliente);
-      Alert.alert(
-        'Resultado', 
-        `Risco: ${resultado.rotulo_faixa}\nProbabilidade: ${(resultado.probabilidade * 100).toFixed(1)}%`
-      );
-    } catch (error: any) {
-      console.error("Erro capturado na tela:", error?.message || error);
-
-      Alert.alert('Erro', 'A API FastAPI precisa estar rodando para avaliar o risco.');
-    }
-  };
-
-  const renderItem = ({ item }: { item: any }) => (
-    <View style={styles.card}>
-      <Text style={styles.name}>{item.nome}</Text>
-      <Text style={styles.info}>CPF: {item.cpf}  |  Idade: {item.age}</Text>
-      
-      <TouchableOpacity 
-        style={styles.button} 
-        onPress={() => handleAvaliarRisco(item)}
-      >
-        <Text style={styles.buttonText}>Avaliar Risco de Churn</Text>
-      </TouchableOpacity>
-    </View>
+  // Recarrega sempre que a tela volta ao foco, para refletir edições.
+  useFocusEffect(
+    useCallback(() => {
+      carregar();
+    }, [carregar])
   );
 
-  if (loading && clientes.length === 0) {
+  const avaliar = async (cliente: Cliente) => {
+    setAvaliandoId(cliente.id ?? null);
+    try {
+      const resultado = await analisarRiscoCliente(cliente);
+      navigation.navigate('PredictResult', { cliente, resultado });
+    } catch (erro: any) {
+      console.error(erro?.message ?? erro);
+      Alert.alert(
+        'Serviço indisponível',
+        'Não foi possível calcular o risco agora. Verifique se a API está no ar e tente novamente.'
+      );
+    } finally {
+      setAvaliandoId(null);
+    }
+  };
+
+  const editar = (cliente: Cliente) => navigation.navigate('ClientForm', { cliente });
+
+  const excluir = (cliente: Cliente) => {
+    Alert.alert(
+      'Remover cliente',
+      `Remover ${cliente.nome} da sua lista? Esta ação não pode ser desfeita.`,
+      [
+        { text: 'Cancelar', style: 'cancel' },
+        {
+          text: 'Remover',
+          style: 'destructive',
+          onPress: async () => {
+            try {
+              if (cliente.id) await removerCliente(cliente.id);
+              await carregar();
+            } catch (e) {
+              console.error(e);
+              Alert.alert('Erro', 'Não foi possível remover o cliente.');
+            }
+          },
+        },
+      ]
+    );
+  };
+
+  const renderItem = ({ item }: { item: Cliente }) => {
+    const avaliando = avaliandoId === item.id;
     return (
-      <View style={styles.center}>
+      <View style={estilos.cartao}>
+        <Text style={estilos.nome}>{item.nome}</Text>
+        <Text style={estilos.info}>
+          {item.age} anos · {item.tariffPlan === 2 ? 'Pós-pago' : 'Pré-pago'} ·{' '}
+          {item.status === false ? 'Linha inativa' : 'Linha ativa'}
+        </Text>
+
+        <TouchableOpacity
+          style={[estilos.botao, avaliando && estilos.botaoDesativado]}
+          onPress={() => avaliar(item)}
+          disabled={avaliando}
+        >
+          {avaliando ? (
+            <ActivityIndicator size="small" color="#fff" />
+          ) : (
+            <Text style={estilos.botaoTexto}>Avaliar risco de cancelamento</Text>
+          )}
+        </TouchableOpacity>
+
+        <View style={estilos.linhaSecundaria}>
+          <TouchableOpacity style={estilos.secundario} onPress={() => editar(item)}>
+            <Text style={estilos.secundarioTexto}>Editar</Text>
+          </TouchableOpacity>
+          <TouchableOpacity style={estilos.secundario} onPress={() => excluir(item)}>
+            <Text style={[estilos.secundarioTexto, estilos.perigo]}>Remover</Text>
+          </TouchableOpacity>
+        </View>
+      </View>
+    );
+  };
+
+  if (carregando && clientes.length === 0) {
+    return (
+      <View style={estilos.centro}>
         <ActivityIndicator size="large" color="#007BFF" />
       </View>
     );
   }
 
   return (
-    <View style={styles.container}>
-      <Text style={styles.title}>Clientes Cadastrados</Text>
-      
+    <View style={estilos.container}>
       <FlatList
         data={clientes}
-        keyExtractor={(item) => item.id}
+        keyExtractor={(item) => item.id ?? item.nome}
         renderItem={renderItem}
-        contentContainerStyle={styles.list}
-        // Adiciona a funcionalidade de "puxar para recarregar"
-        onRefresh={carregarClientes}
-        refreshing={loading}
-        ListEmptyComponent={<Text style={styles.empty}>Nenhum cliente cadastrado.</Text>}
+        contentContainerStyle={estilos.lista}
+        onRefresh={carregar}
+        refreshing={carregando}
+        ListEmptyComponent={
+          <Text style={estilos.vazio}>
+            Nenhum cliente cadastrado. Use a aba Novo Cliente para começar.
+          </Text>
+        }
       />
     </View>
   );
 }
 
-const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-    backgroundColor: '#f5f5f5',
-  },
-  center: {
-    flex: 1,
-    justifyContent: 'center',
-    alignItems: 'center',
-  },
-  title: {
-    fontSize: 22,
-    fontWeight: 'bold',
-    textAlign: 'center',
-    marginVertical: 20,
-  },
-  list: {
-    paddingHorizontal: 15,
-    paddingBottom: 20,
-  },
-  card: {
+const estilos = StyleSheet.create({
+  container: { flex: 1, backgroundColor: '#f5f5f5' },
+  centro: { flex: 1, justifyContent: 'center', alignItems: 'center' },
+  lista: { padding: 15, paddingBottom: 24 },
+  cartao: {
     backgroundColor: '#fff',
     padding: 15,
     borderRadius: 8,
-    marginBottom: 10,
-    elevation: 2, // Sombra no Android
-    shadowColor: '#000', // Sombra no iOS
+    marginBottom: 12,
+    elevation: 2,
+    shadowColor: '#000',
     shadowOpacity: 0.1,
     shadowRadius: 4,
   },
-  name: {
-    fontSize: 18,
-    fontWeight: 'bold',
-    marginBottom: 5,
-  },
-  info: {
-    fontSize: 14,
-    color: '#666',
-    marginBottom: 15,
-  },
-  button: {
+  nome: { fontSize: 18, fontWeight: 'bold', marginBottom: 4 },
+  info: { fontSize: 13, color: '#666', marginBottom: 14 },
+  botao: {
     backgroundColor: '#007BFF',
-    padding: 10,
-    borderRadius: 5,
+    paddingVertical: 11,
+    borderRadius: 6,
     alignItems: 'center',
+    minHeight: 42,
+    justifyContent: 'center',
   },
-  buttonText: {
-    color: '#fff',
-    fontWeight: 'bold',
+  botaoDesativado: { backgroundColor: '#9AA5B1' },
+  botaoTexto: { color: '#fff', fontWeight: 'bold' },
+  linhaSecundaria: {
+    flexDirection: 'row',
+    justifyContent: 'flex-end',
+    gap: 18,
+    marginTop: 10,
   },
-  empty: {
-    textAlign: 'center',
-    marginTop: 50,
-    color: '#888',
-  }
+  secundario: { paddingVertical: 4 },
+  secundarioTexto: { fontSize: 14, color: '#007BFF', fontWeight: '500' },
+  perigo: { color: '#C62828' },
+  vazio: { textAlign: 'center', marginTop: 60, color: '#888', paddingHorizontal: 30 },
 });

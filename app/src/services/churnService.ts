@@ -1,29 +1,24 @@
 import { avaliarRisco } from './api';
+import { Cliente, ResultadoPredicao } from '../types';
 
-export async function analisarRiscoCliente(clienteDoFirebase: any) {
+// Traduz o cliente guardado no Firestore (camelCase) para o contrato da
+// API Python (snake_case). Ver api/CONTRATO.md.
+export async function analisarRiscoCliente(cliente: Cliente): Promise<ResultadoPredicao> {
   const payload = {
-    call_failure: clienteDoFirebase.callFailure,
-    complains: clienteDoFirebase.complains ? 1 : 0,
-    subscription_length: clienteDoFirebase.subscriptionLength,
-    charge_amount: clienteDoFirebase.chargeAmount,
-    seconds_of_use: clienteDoFirebase.secondsOfUse,
-    frequency_of_use: clienteDoFirebase.frequencyOfUse,
-    frequency_of_sms: clienteDoFirebase.frequencyOfSMS,
-    distinct_called_numbers: clienteDoFirebase.distinctCalledNumbers,
-    age_group: clienteDoFirebase.ageGroup,
-    tariff_plan: clienteDoFirebase.tariffPlan,
-    status: clienteDoFirebase.status ? 1 : 2,
-    age: clienteDoFirebase.age,
-    customer_value: clienteDoFirebase.customerValue || 0,
+    call_failure: cliente.callFailure,
+    complains: cliente.complains ? 1 : 0,
+    subscription_length: cliente.subscriptionLength,
+    charge_amount: cliente.chargeAmount,
+    seconds_of_use: cliente.secondsOfUse,
+    frequency_of_use: cliente.frequencyOfUse,
+    frequency_of_sms: cliente.frequencyOfSMS,
+    distinct_called_numbers: cliente.distinctCalledNumbers,
+    age_group: cliente.ageGroup,
+    tariff_plan: cliente.tariffPlan,
+    status: cliente.status ? 1 : 2,
+    age: cliente.age,
+    customer_value: cliente.customerValue || 0,
   };
 
-  console.log("PAYLOAD ENVIADO PARA A API:", JSON.stringify(payload, null, 2));
-
-  try {
-    const resultado = await avaliarRisco(payload);
-    return resultado;
-  } catch (erro: any) {
-    console.error("ERRO COMPLETO DA REQUISICAO:", erro?.detalhes || erro?.message || erro);
-    throw erro;
-  }
+  return (await avaliarRisco(payload)) as ResultadoPredicao;
 }
