@@ -1,5 +1,11 @@
+import AsyncStorage from '@react-native-async-storage/async-storage';
 import { initializeApp } from 'firebase/app';
 import { getFirestore } from 'firebase/firestore';
+// getReactNativePersistence existe no bundle React Native do Firebase, mas não
+// aparece nos tipos públicos de 'firebase/auth'. O import abaixo funciona em
+// tempo de execução; o comentário evita o erro de tipagem.
+// @ts-ignore
+import { getReactNativePersistence, initializeAuth } from 'firebase/auth';
 
 // A configuração do Firebase para web não é secreta: ela é embutida no bundle
 // do aplicativo. A chave fica em variável de ambiente apenas para facilitar a
@@ -23,6 +29,11 @@ if (!firebaseConfig.apiKey) {
 
 export const app = initializeApp(firebaseConfig);
 
-// Instância única do Firestore. Use esta constante em vez de chamar
-// getFirestore(app) dentro de cada função.
+// Instância única do Firestore.
 export const db = getFirestore(app);
+
+// initializeAuth com AsyncStorage mantém a sessão após fechar o aplicativo.
+// getAuth() sozinho guardaria a sessão apenas em memória no React Native.
+export const auth = initializeAuth(app, {
+  persistence: getReactNativePersistence(AsyncStorage),
+});

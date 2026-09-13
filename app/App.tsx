@@ -1,13 +1,14 @@
 import React from 'react';
 import { StatusBar } from 'expo-status-bar';
-import { SafeAreaProvider } from 'react-native-safe-area-context';
-import Routes from './src/routes/Routes'; // ajuste o caminho relativo se routes estiver na raiz
+
+import { AuthProvider } from './src/contexts/AuthContext';
+import Routes from './src/routes/Routes';
 
 export default function App() {
   return (
-    <SafeAreaProvider>
+    <AuthProvider>
       <StatusBar style="auto" />
       <Routes />
-    </SafeAreaProvider>
+    </AuthProvider>
   );
 }

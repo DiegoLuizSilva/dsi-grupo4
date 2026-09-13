@@ -1,3 +1,17 @@
+/**
+ * Perfil da pessoa que USA o aplicativo, guardado na coleção "pessoas"
+ * do Firestore com o uid do Firebase Authentication como identificador.
+ *
+ * Não confundir com Cliente, que é o assinante avaliado pelo modelo e
+ * não possui conta nem login.
+ */
+export interface Perfil {
+  uid: string;
+  nome: string;
+  email: string;
+  criadoEm?: unknown;
+  atualizadoEm?: unknown;
+}
 // Atributos de uso que alimentam o modelo. Correspondem às colunas do
 // Iranian Churn Dataset. Nomes em camelCase; a tradução para snake_case
 // da API acontece em services/churnService.ts.
@@ -58,6 +72,8 @@ export interface Avaliacao {
 
 // Rotas da pilha de navegação.
 export type RootStackParamList = {
+  Login: undefined;
+  SignUp: undefined;
   ClientList: undefined;
   ClientForm: { cliente?: Cliente } | undefined;
   PredictForm: { cliente: Cliente };
