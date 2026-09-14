@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import { View, Text, TextInput, TouchableOpacity, StyleSheet, KeyboardAvoidingView, Platform, ActivityIndicator, Alert } from 'react-native';
 import { Feather } from '@expo/vector-icons';
 import { cadastrarConta } from '../services/authService';
+import { salvarPerfil } from '../services/perfilService';
 
 export default function SignUp({ navigation }: any) {
   const [nome, setNome] = useState('');
@@ -30,17 +31,15 @@ export default function SignUp({ navigation }: any) {
 
     setLoading(true);
     try {
-      // Chama a função exata criada pela sua equipe
-      await cadastrarConta(email, senha, nome);
-      
+      const usuario = await cadastrarConta(email, senha, nome);
+      await salvarPerfil(usuario.uid, { nome, email });
+
       Alert.alert('Sucesso', 'Conta criada com sucesso!');
-      
-      // Aqui você navega de volta para o login ou para a tela principal
-      // navigation.navigate('Login'); 
-      
     } catch (error: any) {
-      // O error.message já vai vir traduzido em português graças ao AuthError do authService.ts!
-      Alert.alert('Erro no cadastro', error.message);
+      Alert.alert(
+        'Erro no cadastro',
+        error?.message ?? 'Não foi possível criar a conta. Tente novamente.'
+      );
     } finally {
       setLoading(false);
     }

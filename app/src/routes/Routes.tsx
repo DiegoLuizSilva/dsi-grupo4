@@ -96,9 +96,9 @@ export default function Routes() {
             }}
           />
         ) : (
-          <> 
-          <Root.Screen name="Login" component={Login} options={{ headerShown: false }} />
-          <Root.Screen name="SignUp" component={SignUp} options={{ headerShown: false }} />
+          <>
+            <Root.Screen name="Login" component={Login} options={{ headerShown: false }} />
+            <Root.Screen name="SignUp" component={SignUp} options={{ headerShown: false }} />
           </>
         )}
       </Root.Navigator>
