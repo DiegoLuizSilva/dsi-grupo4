@@ -4,6 +4,7 @@ import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
 import { createNativeStackNavigator } from '@react-navigation/native-stack';
 import { NavigationContainer } from '@react-navigation/native';
 
+import Home from '../screens/Home';
 import ClientList from '../screens/ClientList';
 import ClientForm from '../screens/ClientForm';
 import PredictResult from '../screens/PredictResult';
@@ -48,6 +49,7 @@ function AbasAutenticadas() {
         headerShown: false,
       }}
     >
+      <Tab.Screen name="Home" component={Home} options={{ title: 'Início' }} />
       <Tab.Screen name="Clientes" component={PilhaClientes} options={{ title: 'Clientes' }} />
       <Tab.Screen name="Cadastro" component={PilhaCadastro} options={{ title: 'Novo Cliente' }} />
     </Tab.Navigator>
