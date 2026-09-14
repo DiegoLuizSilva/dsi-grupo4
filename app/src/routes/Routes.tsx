@@ -9,6 +9,7 @@ import ClientList from '../screens/ClientList';
 import ClientForm from '../screens/ClientForm';
 import PredictResult from '../screens/PredictResult';
 import Login from '../screens/Login';
+import SignUp from '../screens/SignUp';
 import { useAuth } from '../contexts/AuthContext';
 import { RootStackParamList } from '../types';
 
@@ -95,7 +96,10 @@ export default function Routes() {
             }}
           />
         ) : (
+          <> 
           <Root.Screen name="Login" component={Login} options={{ headerShown: false }} />
+          <Root.Screen name="SignUp" component={SignUp} options={{ headerShown: false }} />
+          </>
         )}
       </Root.Navigator>
     </NavigationContainer>

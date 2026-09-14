@@ -27,16 +27,15 @@ app = FastAPI(
     version="0.1.0",
     lifespan=ciclo_de_vida,
 )
-
-# Liberado durante o desenvolvimento para o Expo alcancar a API.
-# Restringir antes de hospedar, na Sprint 6.
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["*"],
+    allow_origins=["*"], # Permite o navegador acessar a API
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],
 )
+# Liberado durante o desenvolvimento para o Expo alcancar a API.
+# Restringir antes de hospedar, na Sprint 6.
 
 app.include_router(clientes.router)
 app.include_router(predict.router)

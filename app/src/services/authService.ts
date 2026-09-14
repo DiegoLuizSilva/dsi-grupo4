@@ -7,8 +7,8 @@ import {
   updateProfile,
   User,
 } from 'firebase/auth';
-
-import { auth } from '../database/firebaseConfig';
+import { doc, setDoc } from 'firebase/firestore';
+import { auth, db } from '../database/firebaseConfig';
 
 export class AuthError extends Error {
   codigo: string;
@@ -48,9 +48,19 @@ export async function cadastrarConta(
 ): Promise<User> {
   try {
     const cred = await createUserWithEmailAndPassword(auth, email.trim(), senha);
+    
     if (nome.trim()) {
       await updateProfile(cred.user, { displayName: nome.trim() });
     }
+
+    // NOVA PARTE: Salva os dados do usuário no Firestore
+    const usuarioRef = doc(db, 'usuarios', cred.user.uid);
+    await setDoc(usuarioRef, {
+      nome: nome.trim(),
+      email: email.trim(),
+      criadoEm: new Date().toISOString(),
+    });
+
     return cred.user;
   } catch (erro) {
     throw traduzirErro(erro);
