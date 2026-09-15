@@ -6,7 +6,7 @@ import { Platform } from 'react-native';
 // aparece nos tipos públicos de 'firebase/auth'. O import abaixo funciona em
 // tempo de execução; o comentário evita o erro de tipagem.
 // @ts-ignore
-import { getAuth, getReactNativePersistence, initializeAuth } from 'firebase/auth';
+import { Auth, getAuth, getReactNativePersistence, initializeAuth } from 'firebase/auth';
 
 // A configuração do Firebase para web não é secreta: ela é embutida no bundle
 // do aplicativo. A chave fica em variável de ambiente apenas para facilitar a
@@ -21,6 +21,8 @@ const firebaseConfig = {
   appId: '1:71201998072:web:06471cbb000705d370670d',
 };
 
+
+
 if (!firebaseConfig.apiKey) {
   throw new Error(
     'EXPO_PUBLIC_FIREBASE_API_KEY não definida. ' +
@@ -33,11 +35,17 @@ export const app = initializeApp(firebaseConfig);
 // Instância única do Firestore.
 export const db = getFirestore(app);
 
-// No navegador, getAuth usa a persistência web apropriada. No aplicativo,
-// initializeAuth com AsyncStorage mantém a sessão após fechar o Expo Go.
-export const auth =
-  Platform.OS === 'web'
-    ? getAuth(app)
-    : initializeAuth(app, {
-        persistence: getReactNativePersistence(AsyncStorage),
-      });
+let auth: Auth;
+
+if (Platform.OS === 'web') {
+  auth = getAuth(app); 
+} else {
+  // O require aqui embaixo "esconde" a função do navegador
+  const { getReactNativePersistence } = require('firebase/auth');
+  
+  auth = initializeAuth(app, {
+    persistence: getReactNativePersistence(AsyncStorage),
+  });
+}
+
+export { auth };
