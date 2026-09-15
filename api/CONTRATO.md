@@ -49,7 +49,7 @@ Todos os treze campos são obrigatórios.
 | `call_failure` | inteiro | >= 0 | Falhas de chamada no período |
 | `complains` | inteiro | 0 ou 1 | 0 sem reclamação, 1 com reclamação |
 | `subscription_length` | inteiro | >= 0 | Meses de assinatura |
-| `charge_amount` | inteiro | 0 a 9 | Faixa de cobrança, 0 menor, 9 maior |
+| `charge_amount` | inteiro | 0 a 10 | Faixa de cobrança, 0 menor, 10 maior |
 | `seconds_of_use` | inteiro | >= 0 | Segundos totais de chamada |
 | `frequency_of_use` | inteiro | >= 0 | Quantidade de chamadas |
 | `frequency_of_sms` | inteiro | >= 0 | Quantidade de mensagens |

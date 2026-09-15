@@ -95,8 +95,8 @@ export default function ClientForm() {
     }
 
     const cobranca = numero(form.chargeAmount);
-    if (!Number.isInteger(cobranca) || cobranca < 0 || cobranca > 9) {
-      return 'A faixa de cobrança deve ser um número inteiro de 0 a 9.';
+    if (!Number.isInteger(cobranca) || cobranca < 0 || cobranca > 10) {
+      return 'A faixa de cobrança deve ser um número inteiro de 0 a 10.';
     }
 
     const inteiros: [CampoNumerico, string][] = [
@@ -205,7 +205,7 @@ export default function ClientForm() {
 
       <CampoNumero
         rotulo="Faixa de cobrança"
-        ajuda="Número inteiro de 0 a 9, sendo 0 a menor faixa"
+        ajuda="Número inteiro de 0 a 10, sendo 0 a menor faixa"
         valor={form.chargeAmount}
         onChange={(v) => mudar('chargeAmount', v)}
       />

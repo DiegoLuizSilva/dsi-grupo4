@@ -56,7 +56,7 @@ class PredictRequest(BaseModel):
     call_failure: int = Field(..., ge=0, description="Falhas de chamada no periodo")
     complains: int = Field(..., ge=0, le=1, description="0 = sem reclamacao, 1 = com reclamacao")
     subscription_length: int = Field(..., ge=0, description="Meses de assinatura")
-    charge_amount: int = Field(..., ge=0, le=9, description="Faixa de cobranca, 0 = menor, 9 = maior")
+    charge_amount: int = Field(..., ge=0, le=10, description="Faixa de cobranca, 0 = menor, 10 = maior")
     seconds_of_use: int = Field(..., ge=0, description="Segundos totais de chamada")
     frequency_of_use: int = Field(..., ge=0, description="Quantidade de chamadas")
     frequency_of_sms: int = Field(..., ge=0, description="Quantidade de mensagens")
