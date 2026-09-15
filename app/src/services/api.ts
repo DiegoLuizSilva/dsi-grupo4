@@ -8,16 +8,15 @@
 
 import { Platform } from 'react-native';
 
-// No emulador Android o localhost do computador e 10.0.2.2.
-// No celular fisico com Expo Go, troque por IP da sua maquina na rede,
-// por exemplo 'http://192.168.0.15:8000'. Descubra com ipconfig ou ifconfig.
-
 const BASE_URL = process.env.EXPO_PUBLIC_API_URL || 'http://localhost:8000';
 
 const TIMEOUT_MS = 8000;
 
-class ApiError extends Error {
-  constructor(mensagem, status, detalhes = null) {
+export class ApiError extends Error {
+  status: number;
+  detalhes: any;
+
+  constructor(mensagem: string, status: number, detalhes: any = null) {
     super(mensagem);
     this.name = 'ApiError';
     this.status = status;
@@ -25,7 +24,7 @@ class ApiError extends Error {
   }
 }
 
-async function requisitar(caminho, opcoes = {}) {
+async function requisitar(caminho: string, opcoes: RequestInit = {}): Promise<any> {
   const controlador = new AbortController();
   const timer = setTimeout(() => controlador.abort(), TIMEOUT_MS);
 
@@ -41,7 +40,6 @@ async function requisitar(caminho, opcoes = {}) {
     const corpo = await resposta.json().catch(() => null);
 
     if (!resposta.ok) {
-      // Exibe os detalhes brutos retornados pelo Pydantic/FastAPI no terminal do Expo
       console.log('RESPOSTA DE ERRO DA API (STATUS ' + resposta.status + '):', JSON.stringify(corpo, null, 2));
 
       let mensagemErro = 'Erro na comunicacao com o servidor';
@@ -50,9 +48,8 @@ async function requisitar(caminho, opcoes = {}) {
         if (typeof corpo.detail === 'string') {
           mensagemErro = corpo.detail;
         } else if (Array.isArray(corpo.detail)) {
-          // Converte a lista de campos invalidos do Pydantic em texto legivel
           mensagemErro = corpo.detail
-            .map((item) => `${item.loc ? item.loc.join('.') : 'campo'}: ${item.msg}`)
+            .map((item: any) => `${item.loc ? item.loc.join('.') : 'campo'}: ${item.msg}`)
             .join(' | ');
         }
       }
@@ -61,7 +58,7 @@ async function requisitar(caminho, opcoes = {}) {
     }
 
     return corpo;
-  } catch (erro) {
+  } catch (erro: any) {
     if (erro.name === 'AbortError') {
       throw new ApiError('O servidor demorou para responder. Verifique a conexao.', 0);
     }
@@ -74,7 +71,7 @@ async function requisitar(caminho, opcoes = {}) {
 
 // ------------------------------------------------------------------ SAUDE
 
-export async function verificarServico() {
+export async function verificarServico(): Promise<boolean> {
   try {
     await requisitar('/health');
     return true;
@@ -85,8 +82,7 @@ export async function verificarServico() {
 
 // --------------------------------------------------------------- PREDICAO
 
-// dados deve conter os 13 campos listados no CONTRATO.md
-export function avaliarRisco(dados) {
+export function avaliarRisco(dados: Record<string, any>) {
   return requisitar('/predict', {
     method: 'POST',
     body: JSON.stringify(dados),
@@ -99,20 +95,20 @@ export function listarClientes() {
   return requisitar('/clientes');
 }
 
-export function obterCliente(id) {
+export function obterCliente(id: string | number) {
   return requisitar(`/clientes/${id}`);
 }
 
-export function criarCliente(dados) {
+export function criarCliente(dados: Record<string, any>) {
   return requisitar('/clientes', { method: 'POST', body: JSON.stringify(dados) });
 }
 
-export function atualizarCliente(id, dados) {
+export function atualizarCliente(id: string | number, dados: Record<string, any>) {
   return requisitar(`/clientes/${id}`, { method: 'PUT', body: JSON.stringify(dados) });
 }
 
-export function removerCliente(id) {
+export function removerCliente(id: string | number) {
   return requisitar(`/clientes/${id}`, { method: 'DELETE' });
 }
 
-export { ApiError, BASE_URL };
+export { BASE_URL };
