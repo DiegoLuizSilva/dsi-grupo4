@@ -1,0 +1,98 @@
+{
+  "modelo_versao": "rf-smotenc-1.0",
+  "algoritmo": "Random Forest | SMOTENC",
+  "treinado_em": "2026-09-27",
+  "atributos": [
+    "call_failure",
+    "complains",
+    "subscription_length",
+    "charge_amount",
+    "seconds_of_use",
+    "frequency_of_use",
+    "frequency_of_sms",
+    "distinct_called_numbers",
+    "tariff_plan",
+    "status",
+    "age",
+    "customer_value"
+  ],
+  "atributos_ignorados": [
+    "age_group"
+  ],
+  "mapeamentos": {
+    "tariff_plan": {
+      "1": 0,
+      "2": 1
+    },
+    "status": {
+      "1": 0,
+      "2": 1
+    }
+  },
+  "classes": [
+    0,
+    1
+  ],
+  "classe_churn": 1,
+  "explicacao": {
+    "tipo": "tree",
+    "arquivo": null,
+    "atributos_transformados": [
+      "call_failure",
+      "subscription_length",
+      "charge_amount",
+      "seconds_of_use",
+      "frequency_of_use",
+      "frequency_of_sms",
+      "distinct_called_numbers",
+      "age",
+      "customer_value",
+      "complains",
+      "tariff_plan",
+      "status"
+    ],
+    "importancias": null,
+    "referencias": {
+      "call_failure": 6,
+      "complains": 0,
+      "subscription_length": 35,
+      "charge_amount": 0,
+      "seconds_of_use": 2990,
+      "frequency_of_use": 54,
+      "frequency_of_sms": 21,
+      "distinct_called_numbers": 21,
+      "tariff_plan": 1,
+      "status": 1,
+      "age": 30,
+      "customer_value": 228.48
+    }
+  },
+  "bibliotecas": {
+    "scikit-learn": "1.9.1",
+    "numpy": "2.5.3",
+    "joblib": "1.6.0",
+    "shap": "0.52.0",
+    "imbalanced-learn": "0.14.2"
+  },
+  "sementes": {
+    "seed_holdout": 42,
+    "seed_cv": 43
+  },
+  "origem": {
+    "repositorio": "pisi3-grupo4",
+    "arquivo": "models/modelo_final.joblib",
+    "criterio": "F1 de churn médio em CV agrupada de 5 folds",
+    "cv_f1": 0.8686698476415,
+    "n_treino": 2517,
+    "n_teste": 633,
+    "sha256_da_base": "72a4a660cba4166bab4f0c24e930d5453d1917e208c9ce2ed16b841347350dd3",
+    "versoes_do_treino": {
+      "numpy": "2.3.5",
+      "pandas": "2.2.3",
+      "scikit-learn": "1.8.0",
+      "imbalanced-learn": "0.14.2",
+      "shap": "0.52.0"
+    }
+  },
+  "observacoes": "Importado de pisi3-grupo4 por ml/importar_modelo.py. O pipeline reordena as colunas, por isso explicacao.atributos_transformados declara a ordem vista pelo estimador."
+}

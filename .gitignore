@@ -18,3 +18,20 @@ api/serviceAccountKey.json
 .vscode/
 api/serviceAccountKey.json
 serviceAccountKey.json
+
+# O pacote do modelo servido pela API. Excecao deliberada a regra *.joblib
+# acima: o artefato que gera os numeros do artigo precisa estar versionado junto
+# com a API que o serve, senao a imagem de hospedagem sobe sem modelo (o
+# servico de hospedagem so recebe o que esta no repositorio) e a demonstracao
+# deixa de ser reproduzivel a partir de um clone limpo.
+# Gerado por ml/importar_modelo.py a partir do repositorio pisi3-grupo4.
+!ml/artefatos/
+!ml/artefatos/modelo.joblib
+!ml/artefatos/metadados.json
+!ml/artefatos/casos_de_referencia.json
+
+# Pacote de ensaio: nunca versionar. Descreve um modelo que nao e o do projeto.
+ml/artefatos/*ensaio*
+
+# Backup criado pelo instalar.ps1.
+_backup_*/

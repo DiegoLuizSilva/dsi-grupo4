@@ -8,9 +8,29 @@
 
 import { Platform } from 'react-native';
 
+import { auth } from '../database/firebaseConfig';
+
 const BASE_URL = process.env.EXPO_PUBLIC_API_URL || 'http://localhost:8000';
 
 const TIMEOUT_MS = 8000;
+
+// A API verifica o token de identidade do Firebase em toda rota de dados e de
+// predicao. Sem este cabecalho, a resposta e 401.
+//
+// `getIdToken()` devolve o token em cache e o renova sozinho quando esta perto
+// de expirar, entao pode ser chamado a cada requisicao sem custo de rede.
+async function cabecalhoDeAutenticacao(): Promise<Record<string, string>> {
+  const usuario = auth.currentUser;
+  if (!usuario) return {};
+
+  try {
+    const token = await usuario.getIdToken();
+    return { Authorization: `Bearer ${token}` };
+  } catch (erro) {
+    console.log('Falha ao obter o token de identidade:', erro);
+    return {};
+  }
+}
 
 export class ApiError extends Error {
   status: number;
@@ -29,10 +49,16 @@ async function requisitar(caminho: string, opcoes: RequestInit = {}): Promise<an
   const timer = setTimeout(() => controlador.abort(), TIMEOUT_MS);
 
   try {
+    const autenticacao = await cabecalhoDeAutenticacao();
+
     const resposta = await fetch(`${BASE_URL}${caminho}`, {
       ...opcoes,
       signal: controlador.signal,
-      headers: { 'Content-Type': 'application/json', ...(opcoes.headers || {}) },
+      headers: {
+        'Content-Type': 'application/json',
+        ...autenticacao,
+        ...(opcoes.headers || {}),
+      },
     });
 
     if (resposta.status === 204) return null;
@@ -43,6 +69,24 @@ async function requisitar(caminho: string, opcoes: RequestInit = {}): Promise<an
       console.log('RESPOSTA DE ERRO DA API (STATUS ' + resposta.status + '):', JSON.stringify(corpo, null, 2));
 
       let mensagemErro = 'Erro na comunicacao com o servidor';
+
+      // 401 e sempre sessao: expirada, ausente ou de outro projeto Firebase.
+      // A mensagem tecnica da API nao ajuda quem esta usando o aplicativo.
+      if (resposta.status === 401) {
+        throw new ApiError(
+          'Sua sessao expirou. Entre novamente para continuar.',
+          401,
+          corpo?.detail,
+        );
+      }
+
+      if (resposta.status === 503) {
+        throw new ApiError(
+          'O servico de analise esta temporariamente indisponivel. Tente em alguns instantes.',
+          503,
+          corpo?.detail,
+        );
+      }
 
       if (corpo && corpo.detail) {
         if (typeof corpo.detail === 'string') {

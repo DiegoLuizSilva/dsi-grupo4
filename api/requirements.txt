@@ -2,3 +2,21 @@ fastapi
 uvicorn[standard]
 pydantic
 firebase-admin
+
+# Inferencia do modelo treinado. As versoes precisam ser compativeis com as
+# usadas no treino; o metadado do pacote registra quais foram, e a API avisa
+# no log quando ha divergencia de versao maior. Ver ml/CONTRATO_MODELO.md.
+scikit-learn
+pandas
+joblib
+
+# Explicabilidade. Sem shap a API continua respondendo, usando a estrategia
+# global declarada no metadado, com um aviso no log.
+shap
+
+# Usado apenas pelo teste do endpoint em testar_predicao.py.
+httpx
+
+# Obrigatorio para desserializar o pipeline: o modelo final usa SMOTENC, e sem
+# este pacote o joblib.load falha com ModuleNotFoundError em imblearn.
+imbalanced-learn

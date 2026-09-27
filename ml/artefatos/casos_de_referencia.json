@@ -1,0 +1,142 @@
+[
+  {
+    "descricao": "Cobranca na faixa 10, extremo do dominio",
+    "entrada": {
+      "call_failure": 25,
+      "complains": 0,
+      "subscription_length": 36,
+      "charge_amount": 10,
+      "seconds_of_use": 11035,
+      "frequency_of_use": 103,
+      "frequency_of_sms": 22,
+      "distinct_called_numbers": 57,
+      "age_group": 5,
+      "tariff_plan": 2,
+      "status": 1,
+      "age": 55,
+      "customer_value": 200.07
+    },
+    "probabilidade_esperada": 0.0,
+    "faixa_esperada": "baixo"
+  },
+  {
+    "descricao": "Plano 1, situacao da linha 1",
+    "entrada": {
+      "call_failure": 8,
+      "complains": 0,
+      "subscription_length": 38,
+      "charge_amount": 0,
+      "seconds_of_use": 4370,
+      "frequency_of_use": 71,
+      "frequency_of_sms": 5,
+      "distinct_called_numbers": 17,
+      "age_group": 3,
+      "tariff_plan": 1,
+      "status": 1,
+      "age": 30,
+      "customer_value": 197.64
+    },
+    "probabilidade_esperada": 0.01,
+    "faixa_esperada": "baixo"
+  },
+  {
+    "descricao": "Plano 1, situacao da linha 2",
+    "entrada": {
+      "call_failure": 0,
+      "complains": 0,
+      "subscription_length": 39,
+      "charge_amount": 0,
+      "seconds_of_use": 318,
+      "frequency_of_use": 5,
+      "frequency_of_sms": 7,
+      "distinct_called_numbers": 4,
+      "age_group": 2,
+      "tariff_plan": 1,
+      "status": 2,
+      "age": 25,
+      "customer_value": 46.035
+    },
+    "probabilidade_esperada": 0.03,
+    "faixa_esperada": "baixo"
+  },
+  {
+    "descricao": "Plano 2, situacao da linha 1",
+    "entrada": {
+      "call_failure": 21,
+      "complains": 1,
+      "subscription_length": 36,
+      "charge_amount": 8,
+      "seconds_of_use": 10435,
+      "frequency_of_use": 93,
+      "frequency_of_sms": 1,
+      "distinct_called_numbers": 42,
+      "age_group": 5,
+      "tariff_plan": 2,
+      "status": 1,
+      "age": 55,
+      "customer_value": 159.42
+    },
+    "probabilidade_esperada": 0.02,
+    "faixa_esperada": "baixo"
+  },
+  {
+    "descricao": "Plano 2, situacao da linha 2",
+    "entrada": {
+      "call_failure": 34,
+      "complains": 1,
+      "subscription_length": 36,
+      "charge_amount": 0,
+      "seconds_of_use": 1970,
+      "frequency_of_use": 64,
+      "frequency_of_sms": 31,
+      "distinct_called_numbers": 19,
+      "age_group": 3,
+      "tariff_plan": 2,
+      "status": 2,
+      "age": 30,
+      "customer_value": 205.36
+    },
+    "probabilidade_esperada": 0.935,
+    "faixa_esperada": "alto"
+  },
+  {
+    "descricao": "Registro de risco medio",
+    "entrada": {
+      "call_failure": 0,
+      "complains": 0,
+      "subscription_length": 37,
+      "charge_amount": 0,
+      "seconds_of_use": 875,
+      "frequency_of_use": 14,
+      "frequency_of_sms": 0,
+      "distinct_called_numbers": 11,
+      "age_group": 2,
+      "tariff_plan": 1,
+      "status": 2,
+      "age": 25,
+      "customer_value": 40.005
+    },
+    "probabilidade_esperada": 0.3188,
+    "faixa_esperada": "medio"
+  },
+  {
+    "descricao": "Registro de risco alto",
+    "entrada": {
+      "call_failure": 0,
+      "complains": 0,
+      "subscription_length": 37,
+      "charge_amount": 0,
+      "seconds_of_use": 0,
+      "frequency_of_use": 0,
+      "frequency_of_sms": 0,
+      "distinct_called_numbers": 0,
+      "age_group": 2,
+      "tariff_plan": 1,
+      "status": 2,
+      "age": 25,
+      "customer_value": 0.0
+    },
+    "probabilidade_esperada": 0.7583,
+    "faixa_esperada": "alto"
+  }
+]
