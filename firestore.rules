@@ -1,0 +1,34 @@
+rules_version = '2';
+
+service cloud.firestore {
+  match /databases/{database}/documents {
+    function estaAutenticado() {
+      return request.auth != null;
+    }
+
+    function ehDonoDoPerfil(uid) {
+      return estaAutenticado() && request.auth.uid == uid;
+    }
+
+    // Cada pessoa usuária acessa somente o perfil ligado à própria conta.
+    match /pessoas/{uid} {
+      allow create: if ehDonoDoPerfil(uid)
+                    && request.resource.data.uid == request.auth.uid;
+
+      allow read: if ehDonoDoPerfil(uid);
+
+      allow update: if ehDonoDoPerfil(uid)
+                    && request.resource.data.uid == resource.data.uid;
+
+      allow delete: if ehDonoDoPerfil(uid);
+    }
+
+    // A equipe usa uma carteira compartilhada. Qualquer gestor autenticado
+    // pode consultar e manter os clientes cadastrados.
+    match /clientes/{clienteId} {
+      allow read, create, update, delete: if estaAutenticado();
+    }
+
+    // Qualquer coleção que não esteja declarada acima permanece bloqueada.
+  }
+}

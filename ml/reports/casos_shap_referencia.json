@@ -1,0 +1,207 @@
+[
+  {
+    "row_id": 110,
+    "classe_real": 0,
+    "entrada_api": {
+      "call_failure": 3,
+      "complains": 0,
+      "subscription_length": 36,
+      "charge_amount": 0,
+      "seconds_of_use": 5858,
+      "frequency_of_use": 92,
+      "frequency_of_sms": 2,
+      "distinct_called_numbers": 10,
+      "age_group": 2,
+      "tariff_plan": 1,
+      "status": 1,
+      "age": 25,
+      "customer_value": 276.75
+    },
+    "probabilidade_exata": 0.1,
+    "probabilidade_api_4_casas": 0.1,
+    "fatores_tree_shap": [
+      {
+        "campo": "status",
+        "impacto": "reduz",
+        "peso": 1.0,
+        "valor_shap": -0.12236609
+      },
+      {
+        "campo": "call_failure",
+        "impacto": "reduz",
+        "peso": 0.705,
+        "valor_shap": -0.08627272
+      },
+      {
+        "campo": "complains",
+        "impacto": "reduz",
+        "peso": 0.6088,
+        "valor_shap": -0.07449088
+      }
+    ]
+  },
+  {
+    "row_id": 516,
+    "classe_real": 0,
+    "entrada_api": {
+      "call_failure": 0,
+      "complains": 0,
+      "subscription_length": 37,
+      "charge_amount": 0,
+      "seconds_of_use": 275,
+      "frequency_of_use": 4,
+      "frequency_of_sms": 0,
+      "distinct_called_numbers": 1,
+      "age_group": 2,
+      "tariff_plan": 1,
+      "status": 2,
+      "age": 25,
+      "customer_value": 12.555
+    },
+    "probabilidade_exata": 0.2863003277710939,
+    "probabilidade_api_4_casas": 0.2863,
+    "fatores_tree_shap": [
+      {
+        "campo": "status",
+        "impacto": "aumenta",
+        "peso": 1.0,
+        "valor_shap": 0.11014478
+      },
+      {
+        "campo": "age",
+        "impacto": "reduz",
+        "peso": 0.8216,
+        "valor_shap": -0.09049969
+      },
+      {
+        "campo": "call_failure",
+        "impacto": "reduz",
+        "peso": 0.6643,
+        "valor_shap": -0.0731643
+      }
+    ]
+  },
+  {
+    "row_id": 399,
+    "classe_real": 1,
+    "entrada_api": {
+      "call_failure": 5,
+      "complains": 0,
+      "subscription_length": 12,
+      "charge_amount": 1,
+      "seconds_of_use": 1668,
+      "frequency_of_use": 27,
+      "frequency_of_sms": 11,
+      "distinct_called_numbers": 12,
+      "age_group": 3,
+      "tariff_plan": 1,
+      "status": 1,
+      "age": 30,
+      "customer_value": 111.8
+    },
+    "probabilidade_exata": 0.52,
+    "probabilidade_api_4_casas": 0.52,
+    "fatores_tree_shap": [
+      {
+        "campo": "subscription_length",
+        "impacto": "aumenta",
+        "peso": 1.0,
+        "valor_shap": 0.10612462
+      },
+      {
+        "campo": "complains",
+        "impacto": "reduz",
+        "peso": 0.8419,
+        "valor_shap": -0.08934794
+      },
+      {
+        "campo": "status",
+        "impacto": "reduz",
+        "peso": 0.7044,
+        "valor_shap": -0.07475597
+      }
+    ]
+  },
+  {
+    "row_id": 1624,
+    "classe_real": 1,
+    "entrada_api": {
+      "call_failure": 8,
+      "complains": 1,
+      "subscription_length": 35,
+      "charge_amount": 1,
+      "seconds_of_use": 5628,
+      "frequency_of_use": 98,
+      "frequency_of_sms": 51,
+      "distinct_called_numbers": 26,
+      "age_group": 2,
+      "tariff_plan": 1,
+      "status": 1,
+      "age": 25,
+      "customer_value": 487.17
+    },
+    "probabilidade_exata": 0.66,
+    "probabilidade_api_4_casas": 0.66,
+    "fatores_tree_shap": [
+      {
+        "campo": "complains",
+        "impacto": "aumenta",
+        "peso": 1.0,
+        "valor_shap": 0.31545919
+      },
+      {
+        "campo": "customer_value",
+        "impacto": "reduz",
+        "peso": 0.2911,
+        "valor_shap": -0.09183698
+      },
+      {
+        "campo": "status",
+        "impacto": "reduz",
+        "peso": 0.2036,
+        "valor_shap": -0.06421796
+      }
+    ]
+  },
+  {
+    "row_id": 72,
+    "classe_real": 1,
+    "entrada_api": {
+      "call_failure": 26,
+      "complains": 1,
+      "subscription_length": 35,
+      "charge_amount": 1,
+      "seconds_of_use": 1015,
+      "frequency_of_use": 50,
+      "frequency_of_sms": 21,
+      "distinct_called_numbers": 19,
+      "age_group": 3,
+      "tariff_plan": 1,
+      "status": 1,
+      "age": 30,
+      "customer_value": 126.6
+    },
+    "probabilidade_exata": 0.9,
+    "probabilidade_api_4_casas": 0.9,
+    "fatores_tree_shap": [
+      {
+        "campo": "complains",
+        "impacto": "aumenta",
+        "peso": 1.0,
+        "valor_shap": 0.42407576
+      },
+      {
+        "campo": "status",
+        "impacto": "reduz",
+        "peso": 0.2907,
+        "valor_shap": -0.12326147
+      },
+      {
+        "campo": "call_failure",
+        "impacto": "aumenta",
+        "peso": 0.1283,
+        "valor_shap": 0.05441466
+      }
+    ]
+  }
+]

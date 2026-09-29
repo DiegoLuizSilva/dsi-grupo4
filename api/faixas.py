@@ -86,7 +86,7 @@ ATRIBUTOS = {
     "age": {
         "rotulo": "Idade",
         "sugestao_aumenta": "Adequar o canal de contato ao perfil etario",
-        "sugestao_reduz": "Perfil etario sem impacto relevante",
+        "sugestao_reduz": "Manter acompanhamento adequado ao perfil etario",
     },
     "age_group": {
         "rotulo": "Faixa etaria",

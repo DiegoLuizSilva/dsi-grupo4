@@ -1,6 +1,6 @@
 # Contrato da API do ChurnGuard
 
-Versão 1.0 — Sprint 2
+Versão 1.1 — Sprints 5 e 6
 
 Este documento é a fonte da verdade sobre os campos trocados entre o aplicativo e a API. Qualquer alteração aqui precisa ser avisada no grupo antes de entrar na branch principal, porque quebra o app.
 
@@ -11,34 +11,35 @@ Documentação interativa: `http://localhost:8000/docs`
 
 ## Estado atual
 
-O endpoint `POST /predict` responde a partir de um substituto (`stub`), não do modelo treinado. O campo `modelo_versao` devolve `stub-0.1` e é assim que se identifica isso.
+O endpoint `POST /predict` usa o Random Forest exportado de PISI3 quando o pacote em `ml/artefatos/` está disponível. Se o pacote faltar, pode responder pelo `stub-0.1` apenas em desenvolvimento. Em ambiente publicado, configurar `CHURNGUARD_PERMITIR_STUB=0` para devolver `503` em vez de apresentar uma predição simulada. Conferir `modelo_versao` e `/health` antes de usar qualquer resultado no artigo.
 
-Na Sprint 5 o stub é trocado pelo modelo real. **O formato da resposta não muda.** Só o valor de `modelo_versao` passa a identificar o modelo treinado. O app não precisa de nenhuma alteração por causa dessa troca.
+O formato da resposta continua o mesmo. As rotas de clientes e de predição agora exigem `Authorization: Bearer <token de identidade do Firebase>`; `/health` permanece público.
 
 ---
 
 ## Convenções
 
 - Todos os campos em `snake_case`.
-- As colunas originais do CSV têm espaço duplo em alguns nomes (`Call  Failure`, `Subscription  Length`, `Charge  Amount`). A normalização é responsabilidade da API. O app nunca vê os nomes originais.
+- As colunas originais do CSV têm espaço duplo em alguns nomes (`Call  Failure`, `Subscription  Length`, `Charge  Amount`). O aplicativo envia os nomes normalizados; o modelo recebe as 12 colunas na ordem declarada em `ml/artefatos/metadados.json`.
+- `age_group` continua obrigatório no contrato de entrada, mas não é usado pelo classificador. `tariff_plan` e `status` são convertidos de `1/2` para `0/1` antes da inferência.
 - Datas em ISO 8601, UTC.
-- Erros de validação retornam `422` com a lista de campos inválidos, formato padrão do FastAPI.
+- Campos inválidos retornam `422`; uma falha do pacote do modelo retorna `503` quando o stub está bloqueado.
 
 ---
 
 ## GET /health
 
-Verifica se a API está de pé. Útil para o app mostrar aviso de serviço indisponível.
+Informa a versão da API, o motor carregado, o estado de inicialização do banco e as configurações de autenticação e stub. Deve ser consultado antes da demonstração.
 
 ```json
-{ "status": "ok", "versao": "0.1.0" }
+{ "status": "ok", "versao": "1.0.0", "modelo": { "carregado": true, "modelo_versao": "rf-smotenc-1.0" }, "banco": { "conectado": true }, "autenticacao_exigida": true, "stub_permitido": false }
 ```
 
 ---
 
 ## POST /predict
 
-Avalia o risco de cancelamento de um cliente.
+Avalia o risco de cancelamento de um cliente autenticado.
 
 ### Entrada
 
@@ -84,20 +85,34 @@ Exemplo (primeira linha do dataset):
 
 ```json
 {
-  "probabilidade": 0.2977,
+  "probabilidade": 0.01,
   "faixa": "baixo",
   "rotulo_faixa": "Risco baixo",
   "fatores": [
     {
-      "campo": "seconds_of_use",
-      "rotulo": "Tempo total de uso",
+      "campo": "frequency_of_use",
+      "rotulo": "Frequencia de chamadas",
       "impacto": "reduz",
       "peso": 1.0,
-      "sugestao": "Uso consistente, manter o plano atual"
+      "sugestao": "Frequencia de uso saudavel"
+    },
+    {
+      "campo": "status",
+      "rotulo": "Situacao da linha",
+      "impacto": "reduz",
+      "peso": 0.9618,
+      "sugestao": "Linha ativa"
+    },
+    {
+      "campo": "complains",
+      "rotulo": "Reclamacoes registradas",
+      "impacto": "reduz",
+      "peso": 0.4466,
+      "sugestao": "Cliente sem reclamacoes no periodo"
     }
   ],
-  "modelo_versao": "stub-0.1",
-  "gerado_em": "2026-08-31T14:01:06.054003Z"
+  "modelo_versao": "rf-smotenc-1.0",
+  "gerado_em": "2026-09-29T14:01:06.054003Z"
 }
 ```
 
@@ -106,13 +121,13 @@ Exemplo (primeira linha do dataset):
 | `probabilidade` | decimal 0 a 1 | **Não exibir na tela.** Existe para registro e para o artigo |
 | `faixa` | `baixo`, `medio`, `alto` | Use para escolher cor e ícone |
 | `rotulo_faixa` | texto | **Exiba este texto.** Cumpre o RNF08, que proíbe depender só de cor |
-| `fatores` | lista | Sempre três itens, ordenados por contribuição decrescente |
+| `fatores` | lista | Até três itens, ordenados por contribuição absoluta decrescente; fatores irrelevantes podem ser omitidos |
 | `fatores[].campo` | texto | Nome técnico. Não exibir |
 | `fatores[].rotulo` | texto | **Exiba este.** Nome legível do atributo |
 | `fatores[].impacto` | `aumenta` ou `reduz` | Direção da contribuição |
 | `fatores[].peso` | decimal 0 a 1 | Contribuição relativa ao maior fator. Serve para barra de proporção |
 | `fatores[].sugestao` | texto | Ação de retenção sugerida, atende o HU08 |
-| `modelo_versao` | texto | `stub-0.1` até a Sprint 5 |
+| `modelo_versao` | texto | Identifica o motor usado; `stub-0.1` indica resultado simulado |
 | `gerado_em` | data ISO | Momento da avaliação |
 
 ### Faixas de risco
@@ -135,7 +150,7 @@ Estão definidos em `api/faixas.py`, nas constantes `CORTE_BAIXO` e `CORTE_ALTO`
 |---|---|---|
 | GET | `/clientes` | `200` com a lista |
 | GET | `/clientes/{id}` | `200` ou `404` |
-| POST | `/clientes` | `201` com o cliente criado, `409` se o identificador já existir |
+| POST | `/clientes` | `201` com identificador Firestore gerado pela API |
 | PUT | `/clientes/{id}` | `200` com o cliente atualizado, `404` se não existir |
 | DELETE | `/clientes/{id}` | `204` sem corpo, `404` se não existir |
 
@@ -145,14 +160,25 @@ Corpo do POST:
 { "identificador": "CLI-001", "tariff_plan": 1, "observacao": "texto opcional" }
 ```
 
-No PUT, envie apenas os campos que mudaram. `identificador` não é alterável.
+No PUT, envie apenas os campos que mudaram. A API associa os documentos criados por ela ao `uid` da conta autenticada e impede a troca de `proprietario` pela requisição.
 
 ---
 
-## Pendência a decidir no grupo
+## Persistência e responsabilidades
 
-O aplicativo mantém a própria base local em `expo-sqlite`, e a API mantém uma base própria em SQLite. Hoje as duas existem em paralelo e não conversam.
+O Cloud Firestore é a fonte de dados do sistema. O aplicativo executa o CRUD
+de clientes diretamente na coleção `clientes` pelo SDK cliente do Firebase. A
+API também expõe endpoints de CRUD sobre essa coleção pelo Firebase Admin e
+mantém o endpoint `POST /predict` para a avaliação de risco.
 
-O documento de requisitos exige, no RNF05, que o CRUD funcione sem conexão. Isso obriga a base local a existir. A questão em aberto é se a base da API passa a ser a fonte da verdade quando há conexão, com sincronização, ou se ela permanece apenas como demonstração dos endpoints REST.
+As contas são autenticadas pelo Firebase Authentication. O perfil de cada
+pessoa usuária fica em `pessoas/{uid}`, usando o identificador da conta como
+identificador do documento. As regras do arquivo `firestore.rules` restringem
+os perfis aos respectivos usuários. As regras locais de clientes ainda permitem
+CRUD compartilhado entre contas autenticadas no acesso direto do aplicativo,
+enquanto os endpoints da API restringem clientes pelo campo `proprietario`.
+Esses dois caminhos precisam ser alinhados antes de afirmar que a carteira é
+privada por conta em todo o sistema.
 
-Enquanto a decisão não for tomada, o app deve usar a base local para o CRUD e a API apenas para `POST /predict`.
+A configuração atual depende de conexão com a internet. O aplicativo ainda não
+oferece o funcionamento offline descrito nas versões antigas dos requisitos.

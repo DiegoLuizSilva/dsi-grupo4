@@ -212,3 +212,7 @@ Duas coleções, que não devem ser confundidas:
 |---|---|
 | `pessoas` | quem **usa** o aplicativo: `uid`, nome, e-mail |
 | `clientes` | os assinantes **avaliados** pelo ChurnGuard, com `proprietario` |
+
+O aplicativo acessa o Firestore pelo SDK cliente e depende das regras em
+`firestore.rules`. O Firebase Admin usado nesta API ignora essas regras;
+portanto, a credencial de serviço deve permanecer somente no backend.
