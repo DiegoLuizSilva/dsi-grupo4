@@ -144,27 +144,18 @@ Authorization: Bearer <token>
 
 O aplicativo envia automaticamente, em `app/src/services/api.ts`. A verificação acontece no **servidor**: o aplicativo saber quem está logado não protege nada, porque a API pode ser chamada direto, sem passar por ele.
 
-Cada documento da coleção `clientes` guarda `proprietario` com o `uid` de quem o criou. A listagem filtra por esse campo e as demais operações conferem o dono antes de responder. Acesso a registro de outra conta devolve **404**, não 403: responder 403 confirmaria que aquele identificador existe em outra conta.
+A **carteira de clientes é compartilhada** entre as contas autenticadas. Qualquer gestor autenticado consulta e mantém qualquer cliente — é a mesma política declarada em `firestore.rules`, que governa o acesso direto do aplicativo ao banco.
+
+O campo `proprietario` registra **autoria** (quem cadastrou), não posse. Ele não restringe acesso e não pode ser definido pela requisição. O `atualizado_por` registra quem fez a última alteração.
+
+A fronteira de acesso é a autenticação, não a posse: sem token válido, nenhuma rota de dados ou de predição responde.
 
 `/health` fica aberto de propósito, para monitoramento.
 
-### Registros anteriores a esta mudança
+### Sobre registros sem `proprietario`
 
-Documentos gravados antes da autorização não têm o campo `proprietario`. Eles continuam visíveis, por compatibilidade, e a API registra um aviso no log. **Migrar ou apagar antes da entrega final** — um documento sem dono é visível para qualquer conta.
+Documentos gravados antes da autorização não têm o campo `proprietario`. Na política de carteira compartilhada isso não é um problema de acesso — eles ficam visíveis como qualquer outro cliente da carteira. A única perda é de rastreabilidade: não dá para saber quem os cadastrou.
 
-Para atribuir os registros existentes a uma conta:
-
-```python
-# Rodar uma vez, com a API parada.
-import db
-uid = "COLE_AQUI_O_UID_DA_CONTA"
-
-banco = db.obter_db()
-for doc in banco.collection("clientes").stream():
-    if "proprietario" not in doc.to_dict():
-        doc.reference.update({"proprietario": uid})
-        print("atualizado:", doc.id)
-```
 
 ## Hospedagem
 

@@ -523,6 +523,42 @@ def testar_autorizacao() -> None:
             os.environ["CHURNGUARD_EXIGIR_AUTENTICACAO"] = original
 
 
+def testar_politica_da_carteira() -> None:
+    """Confere a politica declarada: carteira compartilhada entre autenticados.
+
+    A carteira de clientes e unica da equipe de retencao. O que separa quem
+    acessa de quem nao acessa e a autenticacao, nao a posse do registro. Estes
+    testes existem para que uma mudanca acidental nessa politica apareca aqui, e
+    nao na demonstracao -- e para que a API nunca volte a divergir das regras do
+    Firestore, como aconteceu ate 01/10.
+    """
+    secao("Politica de acesso a carteira")
+
+    import inspect
+
+    import seguranca
+    from routers import clientes as rotas
+
+    codigo = inspect.getsource(rotas.listar)
+    verificar('where("proprietario"' not in codigo and "where('proprietario'" not in codigo,
+              "a listagem NAO filtra por proprietario (carteira compartilhada)",
+              "se voltar a filtrar, a API diverge de firestore.rules")
+
+    verificar("proprietario" in rotas.CAMPOS_CONTROLADOS,
+              "proprietario nao pode ser definido pela requisicao",
+              f"controlados: {rotas.CAMPOS_CONTROLADOS}")
+
+    criar = inspect.getsource(rotas.criar)
+    verificar('payload["proprietario"] = conta.uid' in criar,
+              "a criacao grava proprietario como registro de autoria")
+
+    verificar(not hasattr(seguranca, "conferir_dono"),
+              "conferir_dono foi retirado junto com a politica antiga")
+
+    verificar(hasattr(seguranca, "registrar_autoria"),
+              "registrar_autoria existe para deixar rastro no log")
+
+
 # ------------------------------------------------------------------- resumo
 
 def resumo() -> None:
@@ -548,6 +584,7 @@ def main() -> int:
     testar_falha_de_carregamento()
     testar_endpoint()
     testar_autorizacao()
+    testar_politica_da_carteira()
 
     resumo()
     return 1 if _falhou else 0

@@ -174,11 +174,26 @@ mantém o endpoint `POST /predict` para a avaliação de risco.
 As contas são autenticadas pelo Firebase Authentication. O perfil de cada
 pessoa usuária fica em `pessoas/{uid}`, usando o identificador da conta como
 identificador do documento. As regras do arquivo `firestore.rules` restringem
-os perfis aos respectivos usuários. As regras locais de clientes ainda permitem
-CRUD compartilhado entre contas autenticadas no acesso direto do aplicativo,
-enquanto os endpoints da API restringem clientes pelo campo `proprietario`.
-Esses dois caminhos precisam ser alinhados antes de afirmar que a carteira é
-privada por conta em todo o sistema.
+os perfis aos respectivos usuários.
+
+A carteira de clientes é **compartilhada** entre as contas autenticadas. Os dois
+caminhos de acesso seguem a mesma política: as regras do Firestore, usadas pelo
+acesso direto do aplicativo, e os endpoints da API. Quem não está autenticado
+não acessa nada; quem está acessa a carteira inteira.
+
+A decisão é de domínio. Uma operadora distribui a mesma carteira entre vários
+gestores, e um cliente precisa ser atendido por quem estiver disponível — uma
+carteira privada por conta impediria exatamente o caso de uso. O campo
+`proprietario`, gravado na criação, registra **autoria**: quem cadastrou aquele
+registro. Ele não restringe leitura nem alteração, e não pode ser definido pela
+requisição.
+
+Até 01/10 os dois caminhos divergiam: a API filtrava por `proprietario`
+enquanto as regras liberavam a carteira inteira. Como o aplicativo lê os
+clientes direto do Firestore, pelo `dbService.ts`, o filtro da API nunca era
+exercitado — valia a regra mais permissiva, e o sistema afirmava uma privacidade
+que não possuía. O alinhamento removeu o filtro e manteve a autenticação como
+única fronteira de acesso.
 
 A configuração atual depende de conexão com a internet. O aplicativo ainda não
 oferece o funcionamento offline descrito nas versões antigas dos requisitos.

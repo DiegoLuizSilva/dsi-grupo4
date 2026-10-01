@@ -2,8 +2,13 @@
 
 O aplicativo autentica a pessoa no Firebase Authentication e recebe um token
 de identidade. Este modulo verifica esse token no servidor, com a chave publica
-do Firebase, e devolve o `uid` da conta autenticada. As rotas de dados usam esse
-`uid` para restringir cada operacao aos registros da propria conta.
+do Firebase, e devolve o `uid` da conta autenticada.
+
+O que a autenticacao garante aqui e a fronteira entre dentro e fora: sem token
+valido, nenhuma rota de dados ou de predicao responde. A carteira de clientes em
+si e COMPARTILHADA entre as contas autenticadas -- decisao de dominio registrada
+em `routers/clientes.py` e em `firestore.rules`. O `uid` e usado para registrar
+autoria, nao para restringir acesso.
 
 Por que a verificacao acontece no servidor: o aplicativo saber quem esta logado
 nao protege nada, porque a API pode ser chamada sem passar pelo aplicativo. Uma
@@ -121,34 +126,25 @@ def conta_atual(
     return Conta(uid=uid, email=conteudo.get("email"))
 
 
-def conferir_dono(documento: dict, conta: Conta, cliente_id: str) -> None:
-    """Recusa o acesso a um documento que pertence a outra conta.
+def registrar_autoria(documento: dict, conta: Conta, cliente_id: str) -> None:
+    """Registra no log quem acessou um documento criado por outra conta.
 
-    Devolve 404 e nao 403 de proposito: responder 403 confirmaria que aquele
-    identificador existe em outra conta, o que permitiria descobrir registros
-    alheios um por um. Para quem nao e dono, o registro simplesmente nao existe.
+    A carteira de clientes e COMPARTILHADA entre as contas autenticadas: a
+    decisao esta documentada em `routers/clientes.py` e e a mesma declarada em
+    `firestore.rules`. Portanto esta funcao nao bloqueia nada -- ela apenas
+    deixa rastro, o que ajuda a investigar uma alteracao inesperada.
 
-    Documentos gravados antes desta mudanca nao possuem `proprietario`. Eles
-    sao tratados como visiveis para nao quebrar o que ja esta no banco, e a
-    ausencia e registrada no log. Migrar ou apagar esses registros antes da
-    entrega final; ver api/README.md.
+    Ate a versao anterior existia aqui um `conferir_dono` que devolvia 404
+    quando a conta nao era a dona do registro. Ele foi retirado porque
+    contradizia as regras do Firestore e, na pratica, nunca era exercitado: o
+    aplicativo le os clientes direto do banco, pelo `dbService.ts`, sem passar
+    por esta API. Manter os dois comportamentos divergentes fazia o sistema
+    afirmar uma privacidade que nao possuia.
     """
     proprietario = documento.get("proprietario")
 
-    if proprietario is None:
-        logger.warning(
-            "Documento %s sem campo proprietario; acesso liberado por "
-            "compatibilidade. Migrar antes da entrega final.",
-            cliente_id,
-        )
-        return
-
-    if proprietario != conta.uid:
-        logger.warning(
-            "Conta %s tentou acessar o documento %s, que pertence a %s.",
+    if proprietario is not None and proprietario != conta.uid:
+        logger.info(
+            "Conta %s acessou o cliente %s, cadastrado por %s (carteira compartilhada).",
             conta.uid, cliente_id, proprietario,
-        )
-        raise HTTPException(
-            status_code=status.HTTP_404_NOT_FOUND,
-            detail="Cliente nao encontrado",
         )
