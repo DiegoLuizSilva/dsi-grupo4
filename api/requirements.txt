@@ -1,4 +1,4 @@
-﻿fastapi
+fastapi
 uvicorn[standard]
 pydantic
 firebase-admin
@@ -14,14 +14,13 @@ joblib==1.6.0
 # Obrigatorio para desserializar o pipeline: o modelo final usa SMOTENC.
 imbalanced-learn==0.14.2
 
+# Dependencia do firebase-admin. Declarada explicitamente porque uma
+# reinstalacao forcada ja a deixou de fora, e a falha so aparece em tempo
+# de execucao, como 503 nas rotas de dados.
+google-cloud-firestore
+
 # Explicabilidade por instancia.
 shap==0.52.0
 
 # Usado apenas pelo teste do endpoint.
 httpx
-
-google-cloud-firestore
-
-google-cloud-firestore
-
-google-cloud-firestore
