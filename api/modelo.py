@@ -255,6 +255,51 @@ def _conferir_bibliotecas(metadados: dict) -> None:
             )
 
 
+def _diagnosticar_carga(caminho: Path, erro: Exception) -> str:
+    """Traduz a falha de desserializacao na causa provavel.
+
+    A mensagem original dizia sempre "divergencia de versao de scikit-learn",
+    o que mandava quem lia para o lado errado quando a causa era outra. As
+    causas abaixo foram todas observadas no projeto.
+    """
+    texto = str(erro)
+    baixo = texto.lower()
+
+    if "imblearn" in baixo or "imbalanced" in baixo:
+        return (
+            f"Nao foi possivel carregar {caminho.name}: {texto}\n"
+            "CAUSA: o pipeline usa SMOTENC e o pacote imbalanced-learn nao esta "
+            "instalado.\n"
+            "SOLUCAO: pip install -r requirements.txt"
+        )
+
+    if "dll load failed" in baixo or "controle de aplicativo" in baixo or "application control" in baixo:
+        return (
+            f"Nao foi possivel carregar {caminho.name}: {texto}\n"
+            "CAUSA: uma politica do Windows (Smart App Control ou antivirus) esta "
+            "bloqueando uma biblioteca nativa, geralmente do SciPy. Nao e problema "
+            "de versao nem do modelo.\n"
+            "SOLUCAO: conferir se o venv foi criado com Python 3.12, a mesma versao "
+            "do treino. Wheels recem-lancados costumam ser bloqueados por falta de "
+            "reputacao. Ver api/README.md."
+        )
+
+    if "no module named" in baixo:
+        return (
+            f"Nao foi possivel carregar {caminho.name}: {texto}\n"
+            "CAUSA: falta um pacote que o pipeline referencia.\n"
+            "SOLUCAO: pip install -r requirements.txt"
+        )
+
+    return (
+        f"Nao foi possivel carregar {caminho.name}: {texto}\n"
+        "CAUSA PROVAVEL: divergencia entre a versao de scikit-learn do treino e a "
+        "instalada aqui. O metadado registra as versoes do treino em "
+        "`origem.versoes_do_treino`.\n"
+        "SOLUCAO: conferir requirements.txt, que fixa as versoes de proposito."
+    )
+
+
 def carregar(forcar: bool = False) -> Motor:
     """Carrega o pacote do modelo. Idempotente e seguro entre requisicoes."""
     global _motor, _falha
@@ -296,10 +341,7 @@ def carregar(forcar: bool = False) -> Motor:
             pipeline = joblib.load(caminho_modelo)
         except Exception as erro:
             _falha = f"falha ao desserializar o pipeline: {erro}"
-            raise ErroDeCarregamento(
-                f"Nao foi possivel carregar {caminho_modelo.name}: {erro}. "
-                "Costuma ser divergencia de versao de scikit-learn entre treino e API."
-            ) from erro
+            raise ErroDeCarregamento(_diagnosticar_carga(caminho_modelo, erro)) from erro
 
         if not hasattr(pipeline, "predict_proba"):
             _falha = "pipeline sem predict_proba"

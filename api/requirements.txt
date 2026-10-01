@@ -19,3 +19,7 @@ shap==0.52.0
 
 # Usado apenas pelo teste do endpoint.
 httpx
+
+google-cloud-firestore
+
+google-cloud-firestore
