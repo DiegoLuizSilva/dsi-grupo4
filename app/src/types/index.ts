@@ -76,7 +76,6 @@ export type RootStackParamList = {
   SignUp: undefined;
   ClientList: undefined;
   ClientForm: { cliente?: Cliente } | undefined;
-  PredictForm: { cliente: Cliente };
   PredictResult: { cliente: Cliente; resultado: ResultadoPredicao };
   ClientHistory: { cliente: Cliente };
 };

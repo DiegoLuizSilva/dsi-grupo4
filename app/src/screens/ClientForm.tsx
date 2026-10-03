@@ -82,7 +82,10 @@ export default function ClientForm() {
     setForm((atual) => ({ ...atual, [campo]: valor }));
 
   const numero = (v: string) => {
-    const n = Number(String(v).replace(',', '.'));
+    const texto = String(v).trim().replace(',', '.');
+    if (!texto) return NaN;
+
+    const n = Number(texto);
     return Number.isFinite(n) ? n : NaN;
   };
 
@@ -96,7 +99,7 @@ export default function ClientForm() {
 
     const cobranca = numero(form.chargeAmount);
     if (!Number.isInteger(cobranca) || cobranca < 0 || cobranca > 10) {
-      return 'A faixa de cobrança deve ser um número inteiro de 0 a 10.';
+      return 'Informe a faixa de cobrança como um número inteiro de 0 a 10.';
     }
 
     const inteiros: [CampoNumerico, string][] = [
