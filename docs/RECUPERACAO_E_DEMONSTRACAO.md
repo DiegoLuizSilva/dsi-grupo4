@@ -2,7 +2,7 @@
 
 Como preparar o ambiente publicado para a apresentação, o roteiro da demonstração e o que fazer se algo falhar na hora.
 
-Endereço da API: `https://ENDERECO_RENDER`
+Endereço da API: `https://dsi-grupo4.onrender.com`
 
 ## 1. Contas de demonstração
 
@@ -46,13 +46,13 @@ Rodar de novo sobrescreve os mesmos sete documentos. Clientes cadastrados por pe
 
 **Na véspera**
 
-1. `python testar_api_publicada.py --url https://ENDERECO_RENDER --email demo.gestor1@example.com` com todas as verificações passando.
+1. `python testar_api_publicada.py --url https://dsi-grupo4.onrender.com --email demo.gestor1@example.com` com todas as verificações passando.
 2. `python semear_demonstracao.py` para deixar a carteira no estado inicial.
 3. Entrar no aplicativo com as duas contas e conferir que os sete clientes aparecem.
 
 **30 minutos antes**
 
-1. Abrir `https://ENDERECO_RENDER/health` no navegador e esperar a resposta. O plano gratuito desliga o serviço após 15 minutos sem uso, e a primeira chamada leva cerca de um minuto.
+1. Abrir `https://dsi-grupo4.onrender.com/health` no navegador e esperar a resposta. O plano gratuito desliga o serviço após 15 minutos sem uso, e a primeira chamada leva cerca de um minuto.
 2. Conferir no `/health`: `modelo.carregado: true`, `modelo_versao: rf-smotenc-1.0`, `explicacao: local`, `banco.conectado: true`, `autenticacao_exigida: true`, `stub_permitido: false`.
 3. Entrar no aplicativo com `demo.gestor1` e deixar na tela de clientes.
 

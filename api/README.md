@@ -182,7 +182,7 @@ Depois de publicar, no aplicativo: definir `EXPO_PUBLIC_API_URL` com o endereço
 
 ### Endereço publicado
 
-`https://ENDERECO_RENDER`
+`https://dsi-grupo4.onrender.com`
 
 O plano gratuito do Render desliga o serviço após 15 minutos sem uso. A primeira chamada depois disso leva cerca de um minuto. Antes de qualquer demonstração, abrir `/health` e esperar a resposta.
 
@@ -191,15 +191,15 @@ O plano gratuito do Render desliga o serviço após 15 minutos sem uso. A primei
 Teste rápido, sem conta:
 
 ```bash
-curl https://ENDERECO_RENDER/health
-curl -i https://ENDERECO_RENDER/clientes   # precisa devolver 401
+curl https://dsi-grupo4.onrender.com/health
+curl -i https://dsi-grupo4.onrender.com/clientes   # precisa devolver 401
 ```
 
 Teste completo, com relatório de evidência gravado em `docs/evidencias/`:
 
 ```bash
 cd api
-python testar_api_publicada.py --url https://ENDERECO_RENDER --email demo.gestor1@example.com
+python testar_api_publicada.py --url https://dsi-grupo4.onrender.com --email demo.gestor1@example.com
 ```
 
 Falhas de modelo e de banco, simuladas localmente:
