@@ -73,7 +73,7 @@ Este documento reúne as falhas encontradas durante a integração e a publicaç
 - **Falha:** em Windows 11 com o Controle Inteligente de Aplicativos ativo, o `shap` instala normalmente, mas o sistema bloqueia uma biblioteca nativa do `numba`, da qual ele depende (`_devicearray`). A API caía para a explicação global e registrava "shap nao instalado", mandando reinstalar, o que não resolve.
 - **Reprodução:** clone limpo, venv novo, `pip install -r requirements.txt` sem erro e `python testar_predicao.py`. O log mostra `DLL load failed while importing _devicearray: Uma política de Controle de Aplicativo bloqueou este arquivo`, seguido de "shap nao instalado", e `/health` informa `explicacao: tree` em vez de `local`.
 - **Correção:** `modelo._carregar_explicador()` passou a distinguir pacote ausente de pacote bloqueado pelo sistema e a dizer que o ambiente publicado não é afetado. O README documenta o comportamento no Windows. O ambiente publicado roda em Linux e usa a explicação local (T01.3 de `testar_api_publicada.py`), por isso é a referência para os fatores exibidos.
-- **Reteste:** `testar_predicao.py` com 79/79 nos dois caminhos (shap disponível e shap bloqueado), com a mensagem nova no segundo.
+- **Reteste:** caminho com o shap disponível: `testar_predicao.py` com 79/79 no Windows em 14/10/2026, já com explicação local, numa execução em que o bloqueio não ocorreu. Caminho com o shap bloqueado: simulado com um módulo que reproduz o mesmo `ImportError`, com 79/79 e a mensagem nova no log; o bloqueio real não voltou a ocorrer depois da correção para ser observado de novo.
 
 ### F-10. README sem a configuração do aplicativo
 
@@ -91,6 +91,7 @@ Acrescentar uma linha a cada execução relevante. O relatório completo de cada
 | 14/10/2026 | `testar_predicao.py` | local (Windows 11, Python 3.12.10) | 79/79 | saída do terminal |
 | 14/10/2026 | `testar_falhas.py` | local (Windows 11, Python 3.12.10) | 12/12 | `docs/evidencias/teste_falhas_2026-10-14_0919.md` |
 | 14/10/2026 | `testar_api_publicada.py` | Render, `https://dsi-grupo4.onrender.com` | 30/30 | `docs/evidencias/teste_api_publicada_2026-10-14_0935.md` |
+| 14/10/2026 | `testar_api_publicada.py` | Render, commit `b9b5a73` | 30/30 | `docs/evidencias/teste_api_publicada_2026-10-14_1501.md` |
 | 14/10/2026 | instalação seguindo o README | clone limpo em `C:\teste-limpo`, venv novo, mesma máquina | API e app de pé após 2 correções (F-09, F-10) | descrito abaixo |
 
 ## Instalação a partir de um clone limpo
