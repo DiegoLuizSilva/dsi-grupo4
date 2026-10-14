@@ -46,9 +46,10 @@ Rodar de novo sobrescreve os mesmos sete documentos. Clientes cadastrados por pe
 
 **Na véspera**
 
-1. `python testar_api_publicada.py --url https://dsi-grupo4.onrender.com --email demo.gestor1@example.com` com todas as verificações passando.
-2. `python semear_demonstracao.py` para deixar a carteira no estado inicial.
-3. Entrar no aplicativo com as duas contas e conferir que os sete clientes aparecem.
+1. No painel do Render, conferir que o commit exibido no topo do serviço é o último da branch `main`. Se não for, **Manual Deploy → Deploy latest commit** e esperar ficar **Live**.
+2. `python testar_api_publicada.py --url https://dsi-grupo4.onrender.com --email demo.gestor1@example.com` com todas as verificações passando.
+3. `python semear_demonstracao.py` para deixar a carteira no estado inicial.
+4. Entrar no aplicativo com as duas contas e conferir que os sete clientes aparecem.
 
 **30 minutos antes**
 

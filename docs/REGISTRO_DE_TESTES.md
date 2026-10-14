@@ -61,15 +61,22 @@ Este documento reúne as falhas encontradas durante a integração e a publicaç
 - **Correção:** decisão de domínio pela carteira compartilhada, aplicada igualmente na API e nas regras. O campo `proprietario` passou a registrar autoria, sem restringir acesso.
 - **Reteste:** teste de política da carteira em `testar_predicao.py`.
 
+### F-08. Ambiente publicado desatualizado em relação ao repositório
+
+- **Falha:** o serviço no Render continuava no commit `ed438f1`, cinco commits atrás da API no repositório. Faltavam as versões fixadas, a declaração do `google-cloud-firestore` e a política de carteira compartilhada, então a API publicada ainda filtrava clientes por dono, divergindo de `firestore.rules`.
+- **Reprodução:** comparar o commit exibido no painel do Render com o último commit da branch `main`.
+- **Correção:** nova publicação manual do último commit. A conferência do commit publicado passou a fazer parte da preparação de qualquer demonstração (`docs/RECUPERACAO_E_DEMONSTRACAO.md`, seção 3).
+- **Reteste:** `testar_api_publicada.py` contra `https://dsi-grupo4.onrender.com`, 30/30 em 14/10/2026 (`docs/evidencias/teste_api_publicada_2026-10-14_0935.md`).
+
 ## Histórico de execuções
 
 Acrescentar uma linha a cada execução relevante. O relatório completo de cada uma fica em `docs/evidencias/`.
 
 | Data | Script | Ambiente | Resultado | Relatório |
 |---|---|---|---|---|
-| | `testar_predicao.py` | local | /79 | saída do terminal |
-| | `testar_falhas.py` | local | /12 | `docs/evidencias/teste_falhas_...md` |
-| | `testar_api_publicada.py` | Render | /30 | `docs/evidencias/teste_api_publicada_...md` |
+| 14/10/2026 | `testar_predicao.py` | local (Windows 11, Python 3.12.10) | 79/79 | saída do terminal |
+| 14/10/2026 | `testar_falhas.py` | local (Windows 11, Python 3.12.10) | 12/12 | `docs/evidencias/teste_falhas_2026-10-14_0919.md` |
+| 14/10/2026 | `testar_api_publicada.py` | Render, `https://dsi-grupo4.onrender.com` | 30/30 | `docs/evidencias/teste_api_publicada_2026-10-14_0935.md` |
 | | instalação seguindo o README | outra máquina | | descrever abaixo |
 
 ## Instalação em outra máquina
