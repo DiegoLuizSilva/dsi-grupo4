@@ -68,6 +68,20 @@ Este documento reúne as falhas encontradas durante a integração e a publicaç
 - **Correção:** nova publicação manual do último commit. A conferência do commit publicado passou a fazer parte da preparação de qualquer demonstração (`docs/RECUPERACAO_E_DEMONSTRACAO.md`, seção 3).
 - **Reteste:** `testar_api_publicada.py` contra `https://dsi-grupo4.onrender.com`, 30/30 em 14/10/2026 (`docs/evidencias/teste_api_publicada_2026-10-14_0935.md`).
 
+### F-09. Explicação SHAP bloqueada no Windows, com diagnóstico enganoso
+
+- **Falha:** em Windows 11 com o Controle Inteligente de Aplicativos ativo, o `shap` instala normalmente, mas o sistema bloqueia uma biblioteca nativa do `numba`, da qual ele depende (`_devicearray`). A API caía para a explicação global e registrava "shap nao instalado", mandando reinstalar, o que não resolve.
+- **Reprodução:** clone limpo, venv novo, `pip install -r requirements.txt` sem erro e `python testar_predicao.py`. O log mostra `DLL load failed while importing _devicearray: Uma política de Controle de Aplicativo bloqueou este arquivo`, seguido de "shap nao instalado", e `/health` informa `explicacao: tree` em vez de `local`.
+- **Correção:** `modelo._carregar_explicador()` passou a distinguir pacote ausente de pacote bloqueado pelo sistema e a dizer que o ambiente publicado não é afetado. O README documenta o comportamento no Windows. O ambiente publicado roda em Linux e usa a explicação local (T01.3 de `testar_api_publicada.py`), por isso é a referência para os fatores exibidos.
+- **Reteste:** `testar_predicao.py` com 79/79 nos dois caminhos (shap disponível e shap bloqueado), com a mensagem nova no segundo.
+
+### F-10. README sem a configuração do aplicativo
+
+- **Falha:** seguindo apenas o README, o aplicativo não abria. O README mandava rodar `npm install` e `npx expo start`, sem instruir a criação de `app/.env`.
+- **Reprodução:** clone limpo, `npm install`, `npx expo start` e tecla `w`. Erro: `EXPO_PUBLIC_FIREBASE_API_KEY não definida. Copie app/.env.example para app/.env e preencha a chave antes de rodar o app.`
+- **Correção:** README passou a incluir a cópia de `app/.env.example` para `app/.env` e o preenchimento da chave, e a fixar o Python 3.12 nos pré-requisitos.
+- **Reteste:** com o `.env` criado, o aplicativo abriu no navegador, a conta de demonstração entrou e a cliente Eduarda Freitas foi avaliada como risco alto, com os mesmos três fatores do teste publicado (reclamações, frequência de chamadas, situação da linha).
+
 ## Histórico de execuções
 
 Acrescentar uma linha a cada execução relevante. O relatório completo de cada uma fica em `docs/evidencias/`.
@@ -77,14 +91,15 @@ Acrescentar uma linha a cada execução relevante. O relatório completo de cada
 | 14/10/2026 | `testar_predicao.py` | local (Windows 11, Python 3.12.10) | 79/79 | saída do terminal |
 | 14/10/2026 | `testar_falhas.py` | local (Windows 11, Python 3.12.10) | 12/12 | `docs/evidencias/teste_falhas_2026-10-14_0919.md` |
 | 14/10/2026 | `testar_api_publicada.py` | Render, `https://dsi-grupo4.onrender.com` | 30/30 | `docs/evidencias/teste_api_publicada_2026-10-14_0935.md` |
-| | instalação seguindo o README | outra máquina | | descrever abaixo |
+| 14/10/2026 | instalação seguindo o README | clone limpo em `C:\teste-limpo`, venv novo, mesma máquina | API e app de pé após 2 correções (F-09, F-10) | descrito abaixo |
 
-## Instalação em outra máquina
+## Instalação a partir de um clone limpo
 
-Registro da verificação de que o README é suficiente para colocar o sistema de pé a partir de um clone limpo.
+Registro da verificação de que o README é suficiente para colocar o sistema de pé a partir de um clone novo.
 
-- Data:
-- Quem executou e em qual máquina:
-- Passos do README que funcionaram sem ajuste:
-- Passos que precisaram de ajuste (e o que foi corrigido no README):
-- Resultado de `testar_predicao.py` nessa máquina:
+- **Data:** 14/10/2026.
+- **Quem executou e onde:** Lucas de Farias Guerra, em Windows 11 com Python 3.12, num clone novo em `C:\teste-limpo\dsi-grupo4`, com venv e `node_modules` novos. Foi a mesma máquina de desenvolvimento, não outra; a repetição em outra máquina fica a cargo de outro integrante.
+- **Passos que funcionaram sem ajuste:** `git clone`; criação do venv; `pip install -r requirements.txt`; cópia de `.env.example` para `.env` na API; `uvicorn main:app --port 8000` com Firebase e modelo carregados; `npm install`.
+- **Passos que precisaram de ajuste:** a explicação SHAP ficou indisponível pelo bloqueio do Windows (F-09); o aplicativo não abriu sem o `app/.env`, que o README não mencionava (F-10). Os dois foram corrigidos no README.
+- **Resultado de `testar_predicao.py` nessa instalação:** 79/79.
+- **Teste de ponta a ponta:** login com `demo.gestor1@example.com`, avaliação da cliente Eduarda Freitas pela API publicada: risco alto, com fatores reclamações registradas (aumenta), frequência de chamadas (reduz) e situação da linha (aumenta).

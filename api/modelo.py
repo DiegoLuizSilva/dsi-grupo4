@@ -404,11 +404,26 @@ def _carregar_explicador(metadados: dict, pipeline: Any) -> Any:
 
     try:
         import shap
-    except ImportError:
-        logger.warning(
-            "shap nao instalado; usando a estrategia global. "
-            "Rodar: pip install -r requirements.txt"
-        )
+    except ImportError as erro:
+        texto = str(erro).lower()
+        if ("dll load failed" in texto or "controle de aplicativo" in texto
+                or "application control" in texto):
+            # O shap esta instalado, mas o Windows bloqueou uma biblioteca
+            # nativa dele (a do numba). Antes, a mensagem dizia "nao instalado"
+            # e mandava reinstalar, o que nao resolve nada.
+            logger.warning(
+                "shap instalado, mas bloqueado por politica do Windows (Smart App "
+                "Control). Usando a estrategia global NESTA maquina; o ambiente "
+                "publicado roda em Linux e nao e afetado. Ver api/README.md. "
+                "Detalhe: %s",
+                erro,
+            )
+        else:
+            logger.warning(
+                "shap nao instalado (%s); usando a estrategia global. "
+                "Rodar: pip install -r requirements.txt",
+                erro,
+            )
         return None
 
     passos = getattr(pipeline, "steps", None)

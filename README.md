@@ -99,30 +99,44 @@ Cada integrante é responsável por uma frente de trabalho ao longo das 9 semana
 
 ## 🚀 Como rodar o projeto
 
-> Instruções detalhadas de instalação serão adicionadas conforme o repositório evolui (Sprint 1).
-
 ### Pré-requisitos
-- Node.js e Expo CLI (para o app)
-- Python 3.x e `pip` (para a API e o ML)
-- Expo Go instalado no celular (para testes no dispositivo físico)
+- **Python 3.12** e `pip` (para a API e o ML). As bibliotecas são fixadas nas versões do treino, testadas em 3.12; versões mais novas do Python já causaram bloqueio no Windows (ver `docs/REGISTRO_DE_TESTES.md`, F-05).
+- Node.js e npm (para o app)
+- Expo Go no celular, se for testar num dispositivo físico
+- O arquivo `serviceAccountKey.json` do Firebase, pedido ao responsável pelo backend (nunca versionado)
 
 ### Backend / API
 ```bash
 cd api
+python --version             # precisa ser 3.12.x
 python -m venv venv
 venv\Scripts\activate        # Windows
 source venv/bin/activate     # Mac/Linux
 pip install -r requirements.txt
+copy .env.example .env       # Windows (Mac/Linux: cp .env.example .env)
+# colocar o serviceAccountKey.json dentro de api/
+python testar_predicao.py    # precisa terminar com 0 falharam
 uvicorn main:app --reload --host 0.0.0.0 --port 8000
-
-Documentação interativa em http://localhost:8000/docs.
 ```
+
+Documentação interativa em `http://localhost:8000/docs`. Detalhes em `api/README.md`.
+
+**Windows:** com o Controle Inteligente de Aplicativos ativo, o `shap` pode ser bloqueado. A API continua funcionando, mas explica o resultado pela importância global, e o log avisa. O ambiente publicado não é afetado. Não desligue o Controle Inteligente de Aplicativos: no Windows 11 ele só volta reinstalando o sistema.
+
 ### App (React Native / Expo)
 ```bash
 cd app
 npm install
-npx expo start
+copy .env.example .env       # Windows (Mac/Linux: cp .env.example .env)
 ```
+
+Abra `app/.env` e preencha `EXPO_PUBLIC_FIREBASE_API_KEY` com a chave do projeto Firebase (Console do Firebase → Configurações do projeto → Seus aplicativos → apiKey). `EXPO_PUBLIC_API_URL` já aponta para a API publicada; para usar a API local, troque por `http://localhost:8000`.
+
+```bash
+npx expo start               # tecla w abre no navegador
+```
+
+Sem o `app/.env`, o app para com o erro `EXPO_PUBLIC_FIREBASE_API_KEY não definida`. Depois de alterar o `.env`, reinicie com `npx expo start -c`.
 
 ### Machine Learning
 ```bash

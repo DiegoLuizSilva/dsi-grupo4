@@ -18,6 +18,16 @@ Abra `http://localhost:8000/docs` para a documentação interativa.
 
 O `--host 0.0.0.0` é necessário para o celular alcançar a API pela rede local. No aparelho, o endereço é o IP da máquina na rede, não `localhost` — `localhost` no celular aponta para o próprio celular.
 
+**Python 3.12.** As versões das bibliotecas em `requirements.txt` são as do treino e foram testadas em 3.12. Conferir com `python --version` antes de criar o venv.
+
+### Windows: Controle Inteligente de Aplicativos
+
+Com essa proteção ativa, o Windows pode bloquear bibliotecas nativas recém-baixadas. Dois casos já aconteceram (`docs/REGISTRO_DE_TESTES.md`, F-05 e F-09):
+
+- **scikit-learn ou SciPy bloqueados:** o modelo não carrega. Solução: venv com Python 3.12 e as versões fixadas.
+- **shap bloqueado** (erro `DLL load failed while importing _devicearray`): o modelo carrega, mas os fatores saem pela importância global, e o log diz "shap instalado, mas bloqueado por politica do Windows". `/health` mostra `explicacao: tree`. O ambiente publicado (Linux) não é afetado e é a referência para os fatores.
+
+Não desligar o Controle Inteligente de Aplicativos: no Windows 11 ele só volta reinstalando o sistema.
 ### Antes da primeira execução
 
 **1. Credencial do Firebase.** Baixe o JSON da conta de serviço no console do Firebase (Configurações do projeto → Contas de serviço → Gerar nova chave privada) e salve como `api/serviceAccountKey.json`. O arquivo está no `.gitignore` e **não pode ser versionado**.

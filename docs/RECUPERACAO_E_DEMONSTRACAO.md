@@ -111,6 +111,9 @@ npx expo start -c
 
 Abrir no navegador (tecla `w`). Conferir `http://localhost:8000/health` antes de demonstrar.
 
+
+**Atenção:** num Windows com o Controle Inteligente de Aplicativos ativo, a API local explica pela importância global (F-09), e os três fatores podem sair diferentes dos do ensaio. A faixa de risco não muda, porque vem do mesmo modelo. Se isso acontecer na apresentação, dizer que a explicação local roda no ambiente publicado.
+
 Depois da apresentação, voltar `EXPO_PUBLIC_API_URL` para o endereço do Render.
 
 ### Plano C: gravação
