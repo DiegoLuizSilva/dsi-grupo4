@@ -180,18 +180,37 @@ Nenhuma credencial entra na imagem. Nenhum `.env` é versionado.
 
 Depois de publicar, no aplicativo: definir `EXPO_PUBLIC_API_URL` com o endereço do serviço, em `app/.env`.
 
+### Endereço publicado
+
+`https://ENDERECO_RENDER`
+
+O plano gratuito do Render desliga o serviço após 15 minutos sem uso. A primeira chamada depois disso leva cerca de um minuto. Antes de qualquer demonstração, abrir `/health` e esperar a resposta.
+
 ### Conferir depois de publicar
 
-```bash
-# 1. O serviço está de pé e com o modelo certo?
-curl https://SEU-ENDERECO/health
+Teste rápido, sem conta:
 
-# 2. As rotas estão protegidas? Ambas precisam devolver 401.
-curl -i https://SEU-ENDERECO/clientes
-curl -i -X POST https://SEU-ENDERECO/predict -H 'Content-Type: application/json' -d '{}'
+```bash
+curl https://ENDERECO_RENDER/health
+curl -i https://ENDERECO_RENDER/clientes   # precisa devolver 401
+```
+
+Teste completo, com relatório de evidência gravado em `docs/evidencias/`:
+
+```bash
+cd api
+python testar_api_publicada.py --url https://ENDERECO_RENDER --email demo.gestor1@example.com
+```
+
+Falhas de modelo e de banco, simuladas localmente:
+
+```bash
+python testar_falhas.py
 ```
 
 Se o `GET /clientes` devolver a lista de clientes sem token, **não demonstrar**: a base está aberta.
+
+Preparação da demonstração e o que fazer se algo falhar: `docs/RECUPERACAO_E_DEMONSTRACAO.md`. Histórico de falhas e execuções: `docs/REGISTRO_DE_TESTES.md`.
 
 ## Banco de dados
 
