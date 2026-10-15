@@ -27,6 +27,22 @@ service cloud.firestore {
     // pode consultar e manter os clientes cadastrados.
     match /clientes/{clienteId} {
       allow read, create, update, delete: if estaAutenticado();
+
+      // Histórico de avaliações do cliente. Uma avaliação registra o que o
+      // modelo respondeu naquele momento e não pode ser alterada depois.
+      // A gravação precisa identificar a conta que avaliou e o próprio
+      // cliente. A exclusão acontece junto com a exclusão do cliente.
+      match /avaliacoes/{avaliacaoId} {
+        allow read: if estaAutenticado();
+
+        allow create: if estaAutenticado()
+                      && request.resource.data.uid == request.auth.uid
+                      && request.resource.data.clienteId == clienteId;
+
+        allow update: if false;
+
+        allow delete: if estaAutenticado();
+      }
     }
 
     // Qualquer coleção que não esteja declarada acima permanece bloqueada.
