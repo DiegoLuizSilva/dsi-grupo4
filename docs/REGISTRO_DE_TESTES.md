@@ -6,7 +6,7 @@ Este documento reúne as falhas encontradas durante a integração e a publicaç
 
 | Script | Onde roda | O que cobre | Verificações |
 |---|---|---|---|
-| `api/testar_predicao.py` | máquina local | faixas, carregamento, preparação da entrada, domínio, fatores, alinhamento das colunas, sinal da explicação, consistência com os casos de referência, determinismo, tempo, autorização, política da carteira | 79 |
+| `api/testar_predicao.py` | máquina local | faixas, carregamento, preparação da entrada, domínio, fatores, alinhamento das colunas, sinal da explicação, consistência com os casos de referência, determinismo, tempo, autorização, política da carteira, sugestões coerentes com o valor | 86 |
 | `api/testar_falhas.py` | máquina local | modelo indisponível, stub identificado, troca do modelo sem reiniciar, banco indisponível, erro inesperado, erro de domínio | 12 |
 | `api/testar_api_publicada.py` | contra o endereço publicado | estado do serviço, recusa sem token, token inválido, leitura autenticada, casos de referência, entradas inválidas, determinismo, estabilidade | 30 |
 
@@ -81,6 +81,13 @@ Este documento reúne as falhas encontradas durante a integração e a publicaç
 - **Reprodução:** clone limpo, `npm install`, `npx expo start` e tecla `w`. Erro: `EXPO_PUBLIC_FIREBASE_API_KEY não definida. Copie app/.env.example para app/.env e preencha a chave antes de rodar o app.`
 - **Correção:** README passou a incluir a cópia de `app/.env.example` para `app/.env` e o preenchimento da chave, e a fixar o Python 3.12 nos pré-requisitos.
 - **Reteste:** com o `.env` criado, o aplicativo abriu no navegador, a conta de demonstração entrou e a cliente Eduarda Freitas foi avaliada como risco alto, com os mesmos três fatores do teste publicado (reclamações, frequência de chamadas, situação da linha).
+
+### F-11. Sugestão de retenção contradizendo o valor do cliente
+
+- **Falha:** os textos de sugestão em `api/faixas.py` supõem um sentido fixo para cada atributo (por exemplo, "Rede de contatos reduzida" sempre que contatos distintos aumentam o risco). O Random Forest não é monótono: o mesmo atributo pode aumentar o risco com valor alto em um perfil e com valor baixo em outro. A tela afirmava algo falso sobre o cliente.
+- **Reprodução:** prever os 3.150 registros e comparar o fator exibido com o valor do atributo em relação à mediana da carteira. `distinct_called_numbers` aparecia como "aumenta" com valor acima da mediana em 46 de 57 casos, com o texto "Rede de contatos reduzida"; também havia contradições em `seconds_of_use` (44 de 188), `customer_value` (20 de 56) e `subscription_length` ("Cliente de longa data" com valor abaixo da mediana).
+- **Correção:** cada atributo contínuo declara em `ATRIBUTOS` de que lado da mediana o texto específico foi escrito (`aumenta_quando`). `descrever()` recebe o valor do cliente e a referência de `metadados.json` (`modelo.referencias()`); quando o sinal do fator e o lado do valor não combinam, a sugestão passa a ser neutra ("… acima da mediana da carteira; neste perfil, esse valor pesa a favor do cancelamento …"). O rótulo, o sinal, o peso e a ordem dos fatores não mudam.
+- **Reteste:** nova seção "Sugestões coerentes com o valor do cliente" em `testar_predicao.py`, que passa os registros pela própria rota `/predict` e falha se algum texto específico contradisser o valor. Com o código anterior: 1 falha; com a correção: 86/86, com 91 fatores recebendo a sugestão neutra em 630 registros.
 
 ## Histórico de execuções
 

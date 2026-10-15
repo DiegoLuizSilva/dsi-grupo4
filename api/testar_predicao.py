@@ -559,6 +559,84 @@ def testar_politica_da_carteira() -> None:
               "registrar_autoria existe para deixar rastro no log")
 
 
+# ------------------------------------------- sugestoes coerentes com o valor
+
+def testar_sugestoes() -> None:
+    """A sugestao nao pode afirmar algo falso sobre o valor do cliente.
+
+    O Random Forest nao e monotono: "contatos distintos" pode aumentar o risco
+    com valor alto. Antes desta verificacao, em 46 de 57 desses casos no
+    dataset o app dizia "Rede de contatos reduzida".
+    """
+    secao("Sugestoes coerentes com o valor do cliente")
+    from faixas import ATRIBUTOS, descrever
+
+    ref = 21  # mediana de distinct_called_numbers em metadados.json
+    especifica_aumenta = ATRIBUTOS["distinct_called_numbers"]["sugestao_aumenta"]
+    especifica_reduz = ATRIBUTOS["distinct_called_numbers"]["sugestao_reduz"]
+
+    verificar(descrever("distinct_called_numbers", "aumenta", 5, ref)["sugestao"]
+              == especifica_aumenta,
+              "valor baixo que aumenta o risco mantem o texto especifico")
+    verificar(descrever("distinct_called_numbers", "aumenta", 60, ref)["sugestao"]
+              != especifica_aumenta,
+              "valor alto que aumenta o risco nao diz 'rede reduzida'")
+    verificar(descrever("distinct_called_numbers", "reduz", 5, ref)["sugestao"]
+              != especifica_reduz,
+              "valor baixo que reduz o risco nao diz 'rede ativa'")
+    verificar(descrever("distinct_called_numbers", "aumenta", 60, ref)["rotulo"]
+              == ATRIBUTOS["distinct_called_numbers"]["rotulo"],
+              "o rotulo do fator nao muda com o texto neutro")
+    verificar(descrever("distinct_called_numbers", "aumenta")["sugestao"]
+              == especifica_aumenta,
+              "sem valor de referencia, o comportamento antigo e mantido")
+    verificar(descrever("complains", "aumenta", 1, 0)["sugestao"]
+              == ATRIBUTOS["complains"]["sugestao_aumenta"],
+              "atributo binario nao e afetado")
+
+    # Varredura pela propria rota, para conferir tambem que o endpoint repassa
+    # valor e referencia: nenhum texto especifico pode contradizer o lado do
+    # valor. Um registro a cada cinco, para o teste continuar rapido.
+    import pandas as pd
+    from routers.predict import prever as rota_prever
+
+    caminho = Path(__file__).resolve().parent.parent / "ml" / "data" / "raw" / "iranian_churn.csv"
+    if not caminho.exists():
+        print("        base nao encontrada; varredura nao executada")
+        return
+
+    base = pd.read_csv(caminho).iloc[::5]
+    base.columns = [
+        "call_failure", "complains", "subscription_length", "charge_amount",
+        "seconds_of_use", "frequency_of_use", "frequency_of_sms",
+        "distinct_called_numbers", "age_group", "tariff_plan", "status", "age",
+        "customer_value", "churn",
+    ]
+    refs = modelo.referencias()
+    contradicoes = 0
+    neutras = 0
+    for _, linha in base.iterrows():
+        dados = {c: (float(linha[c]) if c == "customer_value" else int(linha[c]))
+                 for c in base.columns if c != "churn"}
+        resposta = rota_prever(PredictRequest(**dados), conta=None)
+        for f in resposta["fatores"]:
+            meta = ATRIBUTOS[f["campo"]]
+            esperado = meta.get("aumenta_quando")
+            valor, referencia = dados[f["campo"]], refs.get(f["campo"])
+            if not esperado or referencia is None or valor == referencia:
+                continue
+            lado = "acima" if valor > referencia else "abaixo"
+            coerente = (lado == esperado) if f["impacto"] == "aumenta" else (lado != esperado)
+            if f["sugestao"] == meta["sugestao_" + f["impacto"]]:
+                contradicoes += 0 if coerente else 1
+            else:
+                neutras += 1
+    verificar(contradicoes == 0,
+              f"nenhuma sugestao contradiz o valor do cliente ({len(base)} registros pela rota)",
+              f"{contradicoes} contradicoes")
+    print(f"        {neutras} fatores receberam a sugestao neutra")
+
+
 # ------------------------------------------------------------------- resumo
 
 def resumo() -> None:
@@ -585,6 +663,7 @@ def main() -> int:
     testar_endpoint()
     testar_autorizacao()
     testar_politica_da_carteira()
+    testar_sugestoes()
 
     resumo()
     return 1 if _falhou else 0

@@ -96,9 +96,18 @@ def prever(dados: PredictRequest, conta: Conta = Depends(conta_atual)):
 
     faixa = classificar(bruto["probabilidade"])
 
+    # O texto da sugestao depende do valor do cliente em relacao a mediana da
+    # carteira, e nao so do sinal do fator. Ver o comentario de ATRIBUTOS em
+    # faixas.py.
+    refs = {} if usando_stub else modelo.referencias()
+
     fatores = []
     for f in bruto["fatores"]:
-        texto = descrever(f["campo"], f["impacto"])
+        texto = descrever(
+            f["campo"], f["impacto"],
+            valor=getattr(dados, f["campo"], None),
+            referencia=refs.get(f["campo"]),
+        )
         fatores.append({
             "campo": f["campo"],
             "rotulo": texto["rotulo"],

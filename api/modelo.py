@@ -473,6 +473,17 @@ def situacao() -> dict:
     return {"carregado": False, "motivo": _falha or "ainda nao carregado"}
 
 
+def referencias() -> dict:
+    """Valores de referencia (mediana da carteira) declarados no metadado.
+
+    Usados para escolher o texto da sugestao de cada fator. Vazio quando o
+    modelo nao esta carregado, o que mantem os textos padrao no stub.
+    """
+    if _motor is None:
+        return {}
+    return dict((_motor.metadados.get("explicacao") or {}).get("referencias") or {})
+
+
 # ---------------------------------------------------------------- inferencia
 
 def prever(dados: PredictRequest) -> dict:
