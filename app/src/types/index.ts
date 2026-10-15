@@ -56,18 +56,20 @@ export interface ResultadoPredicao {
   gerado_em: string;
 }
 
-// Registro histórico de uma avaliação já realizada. Usado a partir da Sprint 4.
+// Registro histórico de uma avaliação, em clientes/{clienteId}/avaliacoes.
 export interface Avaliacao {
   id?: string;
   clienteId: string;
   clienteNome: string;
+  uid: string;
+  criadoEm: Date;
+  // Cópia do que foi enviado à API, para que editar o cliente não altere o passado.
+  entrada: Record<string, number>;
+  // Resposta da API como veio. A probabilidade fica só no registro, não aparece na tela.
+  resultado: ResultadoPredicao;
   faixa: 'baixo' | 'medio' | 'alto';
   rotuloFaixa: string;
-  // Guardada para registro e para o artigo. Não é exibida na tela (RNF06).
-  probabilidade: number;
-  fatores: Fator[];
   modeloVersao: string;
-  dataAvaliacao: Date;
 }
 
 // Rotas da pilha de navegação.

@@ -3,8 +3,11 @@ import { Cliente, ResultadoPredicao } from '../types';
 
 // Traduz o cliente guardado no Firestore (camelCase) para o contrato da
 // API Python (snake_case). Ver api/CONTRATO.md.
-export async function analisarRiscoCliente(cliente: Cliente): Promise<ResultadoPredicao> {
-  const payload = {
+//
+// Separada da chamada para que a mesma entrada enviada à API seja a gravada
+// no histórico, sem risco de as duas divergirem.
+export function montarEntrada(cliente: Cliente): Record<string, number> {
+  return {
     call_failure: cliente.callFailure,
     complains: cliente.complains ? 1 : 0,
     subscription_length: cliente.subscriptionLength,
@@ -19,6 +22,12 @@ export async function analisarRiscoCliente(cliente: Cliente): Promise<ResultadoP
     age: cliente.age,
     customer_value: cliente.customerValue || 0,
   };
+}
 
-  return (await avaliarRisco(payload)) as ResultadoPredicao;
+export async function analisarRiscoCliente(
+  cliente: Cliente
+): Promise<{ entrada: Record<string, number>; resultado: ResultadoPredicao }> {
+  const entrada = montarEntrada(cliente);
+  const resultado = (await avaliarRisco(entrada)) as ResultadoPredicao;
+  return { entrada, resultado };
 }

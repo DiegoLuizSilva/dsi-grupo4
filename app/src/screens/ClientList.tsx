@@ -12,6 +12,7 @@ import { useFocusEffect, useNavigation } from '@react-navigation/native';
 
 import { listarClientes, removerCliente } from '../services/dbService';
 import { analisarRiscoCliente } from '../services/churnService';
+import { salvarAvaliacao } from '../services/avaliacaoService';
 import { Cliente } from '../types';
 
 export default function ClientList() {
@@ -42,8 +43,26 @@ export default function ClientList() {
   const avaliar = async (cliente: Cliente) => {
     setAvaliandoId(cliente.id ?? null);
     try {
-      const resultado = await analisarRiscoCliente(cliente);
+      const { entrada, resultado } = await analisarRiscoCliente(cliente);
+
+      // A predição já deu certo. Uma falha ao gravar não pode esconder o
+      // resultado, nem a tela pode dizer que a avaliação foi registrada.
+      let salvo = true;
+      try {
+        await salvarAvaliacao(cliente, entrada, resultado);
+      } catch (erroAoSalvar) {
+        console.error(erroAoSalvar);
+        salvo = false;
+      }
+
       navigation.navigate('PredictResult', { cliente, resultado });
+
+      if (!salvo) {
+        Alert.alert(
+          'Avaliação não registrada',
+          'A análise foi concluída, mas não foi salva no histórico. Verifique a conexão e avalie novamente para registrá-la.'
+        );
+      }
     } catch (erro: any) {
       console.error(erro?.message ?? erro);
       Alert.alert(
