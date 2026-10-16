@@ -87,7 +87,14 @@ Este documento reúne as falhas encontradas durante a integração e a publicaç
 - **Falha:** os textos de sugestão em `api/faixas.py` supõem um sentido fixo para cada atributo (por exemplo, "Rede de contatos reduzida" sempre que contatos distintos aumentam o risco). O Random Forest não é monótono: o mesmo atributo pode aumentar o risco com valor alto em um perfil e com valor baixo em outro. A tela afirmava algo falso sobre o cliente.
 - **Reprodução:** prever os 3.150 registros e comparar o fator exibido com o valor do atributo em relação à mediana da carteira. `distinct_called_numbers` aparecia como "aumenta" com valor acima da mediana em 46 de 57 casos, com o texto "Rede de contatos reduzida"; também havia contradições em `seconds_of_use` (44 de 188), `customer_value` (20 de 56) e `subscription_length` ("Cliente de longa data" com valor abaixo da mediana).
 - **Correção:** cada atributo contínuo declara em `ATRIBUTOS` de que lado da mediana o texto específico foi escrito (`aumenta_quando`). `descrever()` recebe o valor do cliente e a referência de `metadados.json` (`modelo.referencias()`); quando o sinal do fator e o lado do valor não combinam, a sugestão passa a ser neutra ("… acima da mediana da carteira; neste perfil, esse valor pesa a favor do cancelamento …"). O rótulo, o sinal, o peso e a ordem dos fatores não mudam.
-- **Reteste:** nova seção "Sugestões coerentes com o valor do cliente" em `testar_predicao.py`, que passa os registros pela própria rota `/predict` e falha se algum texto específico contradisser o valor. Com o código anterior: 1 falha; com a correção: 86/86, com 91 fatores recebendo a sugestão neutra em 630 registros.
+- **Reteste:** nova seção "Sugestões coerentes com o valor do cliente" em `testar_predicao.py`, que passa os registros pela própria rota `/predict` e falha se algum texto específico contradisser o valor. Com o código anterior: 1 falha; com a correção: 86/86, com 91 fatores recebendo a sugestão neutra em 630 registros. Publicado no Render e verificado com `testar_api_publicada.py`, 30/30 em 16/10/2026 (commit `ff421fc`).
+
+### F-12. Modelo servido pela API diferente do modelo final do pisi3-grupo4
+
+- **Falha:** a API servia o modelo importado em 27/09 (SHA-256 `6aa328bb…`, commit `2d2e0a3` do pisi3-grupo4), enquanto o modelo final consolidado em 29/09 (commit `8d06df3`, SHA-256 `13d946fb…`) é o que gera a validação cruzada e os valores SHAP do artigo. Os dois têm os mesmos hiperparâmetros e as mesmas métricas de teste (93 de 100 cancelamentos, 18 falsos positivos), mas o F1 em validação cruzada difere (0,869 contra 0,870) e as probabilidades diferem em até 0,015, mudando a faixa de 6 dos 3.150 registros. O artigo afirmava que a aplicação executa o mesmo artefato avaliado nos experimentos.
+- **Reprodução:** `congelar.py` compara o SHA-256 de `ml/artefatos/modelo.joblib` com o de `pisi3-grupo4/models/modelo_final.joblib`.
+- **Correção:** novo pacote gerado por `ml/importar_modelo.py` a partir do commit `8d06df3` (commit `ff421fc`), publicado no Render; artigo atualizado com os números desse modelo.
+- **Reteste:** `testar_predicao.py` 86/86 e `testar_api_publicada.py` 30/30 em 16/10/2026 (`docs/evidencias/teste_api_publicada_2026-10-16_1248.md`). O caso de referência "Plano 2, situação da linha 2" passou de 0,935 para 0,94, e o teste publicado confirmou o valor novo. Os sete clientes de demonstração mantêm faixa e fatores.
 
 ## Histórico de execuções
 
@@ -100,6 +107,8 @@ Acrescentar uma linha a cada execução relevante. O relatório completo de cada
 | 14/10/2026 | `testar_api_publicada.py` | Render, `https://dsi-grupo4.onrender.com` | 30/30 | `docs/evidencias/teste_api_publicada_2026-10-14_0935.md` |
 | 14/10/2026 | `testar_api_publicada.py` | Render, commit `b9b5a73` | 30/30 | `docs/evidencias/teste_api_publicada_2026-10-14_1501.md` |
 | 14/10/2026 | instalação seguindo o README | clone limpo em `C:\teste-limpo`, venv novo, mesma máquina | API e app de pé após 2 correções (F-09, F-10) | descrito abaixo |
+| 16/10/2026 | `testar_predicao.py` | local (Windows 11, Python 3.12.10), commit `ff421fc` | 86/86 | saída do terminal |
+| 16/10/2026 | `testar_api_publicada.py` | Render, commit `ff421fc` | 30/30 | `docs/evidencias/teste_api_publicada_2026-10-16_1248.md` |
 
 ## Instalação a partir de um clone limpo
 

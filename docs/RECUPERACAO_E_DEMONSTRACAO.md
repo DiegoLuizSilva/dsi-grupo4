@@ -27,7 +27,7 @@ Gravados por `api/semear_demonstracao.py`, com os dados dos casos de referência
 | demo-02 | Bruno Carvalho | baixo | 1,00% |
 | demo-03 | Carla Menezes | baixo | 3,00% |
 | demo-04 | Daniel Souza | baixo | 2,00% |
-| demo-05 | Eduarda Freitas | **alto** | 93,50% |
+| demo-05 | Eduarda Freitas | **alto** | 94,00% |
 | demo-06 | Fabio Nascimento | **médio** | 31,88% |
 | demo-07 | Gabriela Rocha | **alto** | 75,83% |
 
