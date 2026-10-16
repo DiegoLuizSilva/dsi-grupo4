@@ -1,7 +1,7 @@
 {
   "modelo_versao": "rf-smotenc-1.0",
   "algoritmo": "Random Forest | SMOTENC",
-  "treinado_em": "2026-09-27",
+  "treinado_em": "2026-10-16",
   "atributos": [
     "call_failure",
     "complains",
@@ -68,8 +68,8 @@
     }
   },
   "bibliotecas": {
-    "scikit-learn": "1.9.1",
-    "numpy": "2.5.3",
+    "scikit-learn": "1.8.0",
+    "numpy": "2.3.5",
     "joblib": "1.6.0",
     "shap": "0.52.0",
     "imbalanced-learn": "0.14.2"
@@ -82,13 +82,13 @@
     "repositorio": "pisi3-grupo4",
     "arquivo": "models/modelo_final.joblib",
     "criterio": "F1 de churn médio em CV agrupada de 5 folds",
-    "cv_f1": 0.8686698476415,
+    "cv_f1": 0.8699388337895624,
     "n_treino": 2517,
     "n_teste": 633,
     "sha256_da_base": "72a4a660cba4166bab4f0c24e930d5453d1917e208c9ce2ed16b841347350dd3",
     "versoes_do_treino": {
       "numpy": "2.3.5",
-      "pandas": "2.2.3",
+      "pandas": "2.3.3",
       "scikit-learn": "1.8.0",
       "imbalanced-learn": "0.14.2",
       "shap": "0.52.0"
