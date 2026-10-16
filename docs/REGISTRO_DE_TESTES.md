@@ -96,6 +96,13 @@ Este documento reúne as falhas encontradas durante a integração e a publicaç
 - **Correção:** novo pacote gerado por `ml/importar_modelo.py` a partir do commit `8d06df3` (commit `ff421fc`), publicado no Render; artigo atualizado com os números desse modelo.
 - **Reteste:** `testar_predicao.py` 86/86 e `testar_api_publicada.py` 30/30 em 16/10/2026 (`docs/evidencias/teste_api_publicada_2026-10-16_1248.md`). O caso de referência "Plano 2, situação da linha 2" passou de 0,935 para 0,94, e o teste publicado confirmou o valor novo. Os sete clientes de demonstração mantêm faixa e fatores.
 
+### F-13. CSV original alterado pelo Git no Windows
+
+- **Falha:** `src/validar_inferencia.py` (pisi3-grupo4) recusava a execução com "O CSV não corresponde ao usado no treinamento". O Git do Windows, com `core.autocrlf` ativo, trocou as quebras de linha de `data/raw/iranian_churn.csv` de LF para CRLF ao baixar o repositório. O conteúdo era o mesmo, mas o SHA-256 passou de `72a4a660…` para `90d5fb6b…`.
+- **Reprodução:** clonar o pisi3-grupo4 no Windows e rodar `python -m src.validar_inferencia --dsi-root ..\dsi-grupo4`.
+- **Correção:** `.gitattributes` com `data/raw/*.csv -text` no pisi3-grupo4, que impede a conversão, e nova cópia do CSV sem conversão (`git -c core.autocrlf=false checkout`).
+- **Reteste:** SHA-256 do CSV igual a `72a4a660…` e `validar_inferencia` sem divergência em 16/10/2026.
+
 ## Histórico de execuções
 
 Acrescentar uma linha a cada execução relevante. O relatório completo de cada uma fica em `docs/evidencias/`.
@@ -110,6 +117,7 @@ Acrescentar uma linha a cada execução relevante. O relatório completo de cada
 | 16/10/2026 | `testar_predicao.py` | local (Windows 11, Python 3.12.10), commit `ff421fc` | 86/86 | saída do terminal |
 | 16/10/2026 | `testar_api_publicada.py` | Render, commit `ff421fc` | 30/30 | `docs/evidencias/teste_api_publicada_2026-10-16_1248.md` |
 | 16/10/2026 | gravação do histórico pelo app | app no navegador + Render + regra do Firestore publicada | avaliação da cliente Eduarda Freitas gravada em `clientes/demo-05/avaliacoes`, sem aviso de falha | conferido no console do Firebase |
+| 16/10/2026 | `src/validar_inferencia.py --dsi-root` (pisi3-grupo4) | local (Windows 11, Python 3.12), pisi3-grupo4 `740f8bb` × dsi-grupo4 `c44b4e99` | sem divergência: modelo `13d946fbcaa2`, 633 escores do teste com erro máximo 1,1e-16; atributos, exclusão de age_group e ordem do SHAP iguais | saída do terminal |
 
 ## Instalação a partir de um clone limpo
 
