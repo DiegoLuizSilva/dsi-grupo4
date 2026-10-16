@@ -27,7 +27,7 @@ from sklearn.exceptions import InconsistentVersionWarning
 RAIZ = Path(__file__).resolve().parents[1]
 PASTA = RAIZ / "ml" / "artefatos"
 REFERENCIAS = RAIZ / "ml" / "reports" / "casos_shap_referencia.json"
-SHA256_MODELO = "6aa328bb7f32c09867165722892fc1ae9c1a44fca40615251dbd894390a7b567"
+SHA256_MODELO = "13d946fbcaa29a9027b33702a1ec41f244c22ec5c12b2004f8c81481382e4d7d"
 sys.path.insert(0, str(RAIZ / "api"))
 from faixas import ATRIBUTOS, classificar, descrever  # noqa: E402
 

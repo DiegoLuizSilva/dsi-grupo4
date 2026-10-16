@@ -17,26 +17,26 @@
       "age": 25,
       "customer_value": 276.75
     },
-    "probabilidade_exata": 0.1,
-    "probabilidade_api_4_casas": 0.1,
+    "probabilidade_exata": 0.095,
+    "probabilidade_api_4_casas": 0.095,
     "fatores_tree_shap": [
       {
         "campo": "status",
         "impacto": "reduz",
         "peso": 1.0,
-        "valor_shap": -0.12236609
+        "valor_shap": -0.12163629
       },
       {
         "campo": "call_failure",
         "impacto": "reduz",
-        "peso": 0.705,
-        "valor_shap": -0.08627272
+        "peso": 0.7102,
+        "valor_shap": -0.08638525
       },
       {
         "campo": "complains",
         "impacto": "reduz",
-        "peso": 0.6088,
-        "valor_shap": -0.07449088
+        "peso": 0.6129,
+        "valor_shap": -0.07455369
       }
     ]
   },
@@ -65,19 +65,19 @@
         "campo": "status",
         "impacto": "aumenta",
         "peso": 1.0,
-        "valor_shap": 0.11014478
+        "valor_shap": 0.11003826
       },
       {
         "campo": "age",
         "impacto": "reduz",
-        "peso": 0.8216,
-        "valor_shap": -0.09049969
+        "peso": 0.8274,
+        "valor_shap": -0.09104452
       },
       {
         "campo": "call_failure",
         "impacto": "reduz",
-        "peso": 0.6643,
-        "valor_shap": -0.0731643
+        "peso": 0.664,
+        "valor_shap": -0.07306543
       }
     ]
   },
@@ -99,26 +99,26 @@
       "age": 30,
       "customer_value": 111.8
     },
-    "probabilidade_exata": 0.52,
-    "probabilidade_api_4_casas": 0.52,
+    "probabilidade_exata": 0.515,
+    "probabilidade_api_4_casas": 0.515,
     "fatores_tree_shap": [
       {
         "campo": "subscription_length",
         "impacto": "aumenta",
         "peso": 1.0,
-        "valor_shap": 0.10612462
+        "valor_shap": 0.10633955
       },
       {
         "campo": "complains",
         "impacto": "reduz",
-        "peso": 0.8419,
-        "valor_shap": -0.08934794
+        "peso": 0.8437,
+        "valor_shap": -0.08971563
       },
       {
         "campo": "status",
         "impacto": "reduz",
-        "peso": 0.7044,
-        "valor_shap": -0.07475597
+        "peso": 0.7117,
+        "valor_shap": -0.07568053
       }
     ]
   },
@@ -140,26 +140,26 @@
       "age": 25,
       "customer_value": 487.17
     },
-    "probabilidade_exata": 0.66,
-    "probabilidade_api_4_casas": 0.66,
+    "probabilidade_exata": 0.65,
+    "probabilidade_api_4_casas": 0.65,
     "fatores_tree_shap": [
       {
         "campo": "complains",
         "impacto": "aumenta",
         "peso": 1.0,
-        "valor_shap": 0.31545919
+        "valor_shap": 0.31482332
       },
       {
         "campo": "customer_value",
         "impacto": "reduz",
-        "peso": 0.2911,
-        "valor_shap": -0.09183698
+        "peso": 0.2918,
+        "valor_shap": -0.09185634
       },
       {
         "campo": "status",
         "impacto": "reduz",
-        "peso": 0.2036,
-        "valor_shap": -0.06421796
+        "peso": 0.2045,
+        "valor_shap": -0.06437901
       }
     ]
   },
@@ -188,19 +188,19 @@
         "campo": "complains",
         "impacto": "aumenta",
         "peso": 1.0,
-        "valor_shap": 0.42407576
+        "valor_shap": 0.42404055
       },
       {
         "campo": "status",
         "impacto": "reduz",
-        "peso": 0.2907,
-        "valor_shap": -0.12326147
+        "peso": 0.2904,
+        "valor_shap": -0.12312492
       },
       {
         "campo": "call_failure",
         "impacto": "aumenta",
-        "peso": 0.1283,
-        "valor_shap": 0.05441466
+        "peso": 0.1325,
+        "valor_shap": 0.0561824
       }
     ]
   }
