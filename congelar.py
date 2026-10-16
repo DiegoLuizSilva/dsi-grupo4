@@ -99,7 +99,10 @@ def conferir_credenciais(repos: dict[str, Path]) -> None:
         else:
             ok(f"{nome} sem .env nem serviceAccountKey versionados")
 
-        chaves = [a for a in git(repo, "grep", "-l", "BEGIN PRIVATE KEY").splitlines()
+        # O texto procurado e montado em duas partes para este proprio arquivo
+        # nao conter a frase e nao ser apontado como chave privada.
+        marcador = "BEGIN " + "PRIVATE KEY"
+        chaves = [a for a in git(repo, "grep", "-l", marcador).splitlines()
                   if a and not a.endswith(".env.example")]
         if chaves:
             falha(f"{nome} tem chave privada em: {', '.join(chaves)}")
