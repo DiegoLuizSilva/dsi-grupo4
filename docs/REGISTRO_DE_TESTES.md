@@ -109,6 +109,7 @@ Acrescentar uma linha a cada execução relevante. O relatório completo de cada
 | 14/10/2026 | instalação seguindo o README | clone limpo em `C:\teste-limpo`, venv novo, mesma máquina | API e app de pé após 2 correções (F-09, F-10) | descrito abaixo |
 | 16/10/2026 | `testar_predicao.py` | local (Windows 11, Python 3.12.10), commit `ff421fc` | 86/86 | saída do terminal |
 | 16/10/2026 | `testar_api_publicada.py` | Render, commit `ff421fc` | 30/30 | `docs/evidencias/teste_api_publicada_2026-10-16_1248.md` |
+| 16/10/2026 | gravação do histórico pelo app | app no navegador + Render + regra do Firestore publicada | avaliação da cliente Eduarda Freitas gravada em `clientes/demo-05/avaliacoes`, sem aviso de falha | conferido no console do Firebase |
 
 ## Instalação a partir de um clone limpo
 
