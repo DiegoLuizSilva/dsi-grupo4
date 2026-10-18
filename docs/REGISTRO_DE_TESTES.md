@@ -103,6 +103,13 @@ Este documento reúne as falhas encontradas durante a integração e a publicaç
 - **Correção:** `.gitattributes` com `data/raw/*.csv -text` no pisi3-grupo4, que impede a conversão, e nova cópia do CSV sem conversão (`git -c core.autocrlf=false checkout`).
 - **Reteste:** SHA-256 do CSV igual a `72a4a660…` e `validar_inferencia` sem divergência em 16/10/2026.
 
+### F-14. Modelo final retreinado por engano no pisi3-grupo4
+
+- **Falha:** o commit `1bf7c2b` do pisi3-grupo4 (16/10), feito para a página de visão geral do painel, levou junto uma nova execução de todo o pipeline em Python 3.14.7. O modelo final passou a ter SHA-256 `215c4759…` no lugar de `13d946fb…`, o F1 de churn em validação cruzada caiu de 0,870 para 0,869 e predições, valores SHAP, figuras e notebooks 03 a 06 foram sobrescritos. O artigo, a API publicada e o README continuavam descrevendo o modelo `13d946fb…`.
+- **Reprodução:** comparar `models/modelo_final.joblib` com `ml/artefatos/modelo.joblib`, como faz `congelar.py`, ou rodar `python -m src.validar_inferencia --dsi-root ..\dsi-grupo4`.
+- **Correção:** os 34 artefatos gerados pelo pipeline (modelos, tabelas, figuras e notebooks 03 a 06) voltaram à versão do commit `740f8bb`; o código da página e as demais mudanças do commit foram mantidos. O pipeline não deve ser reexecutado fora de Python 3.12 (ver F-05), e o painel só lê os resultados, sem retreinar.
+- **Reteste:** SHA-256 do modelo de volta a `13d946fb…`, `cv_f1` 0,8699 e as cinco páginas já existentes do painel abrindo sem erro com os números do artigo, em 18/10/2026.
+
 ## Histórico de execuções
 
 Acrescentar uma linha a cada execução relevante. O relatório completo de cada uma fica em `docs/evidencias/`.

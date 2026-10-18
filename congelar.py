@@ -2,7 +2,7 @@ r"""Congelamento da versao de entrega do ChurnGuard (Sprint 9).
 
 Confere os dois repositorios, roda os testes locais, registra em
 docs/PACOTE_FINAL.md quais revisoes de codigo, modelo e artigo compoem a
-entrega e, por ultimo, cria a tag nos dois repositorios.
+entrega e, por ultimo, cria a tag no dsi-grupo4 (o pisi3-grupo4 congela em 23/10).
 
 Nao altera codigo. So escreve docs/PACOTE_FINAL.md, e pergunta antes do
 commit e antes das tags. Se encontrar qualquer problema, para sem gravar nada.
@@ -183,7 +183,7 @@ Versão congelada em {agora:%d/%m/%Y %H:%M} para a apresentação de 21/10/2026.
 | SHA-256 do modelo | `{info['sha']}` |
 | Artigo | {args.artigo} |
 
-A tag `{args.tag}` marca, nos dois repositórios, a versão entregue.
+A tag `{args.tag}` marca a versão entregue no dsi-grupo4. O pisi3-grupo4 segue com o painel até o congelamento de 23/10; a revisão acima é a que forneceu o modelo.
 
 ## Verificações no congelamento
 
@@ -243,14 +243,13 @@ def main() -> int:
     subprocess.run(["git", "-C", str(DSI), "commit", "-m", f"Congela a versao de entrega ({args.tag})"], check=True)
     subprocess.run(["git", "-C", str(DSI), "push"], check=True)
 
-    if not perguntar(f"Criar a tag {args.tag} nos dois repositorios e enviar ao GitHub?"):
-        print("Tags nao criadas.")
+    if not perguntar(f"Criar a tag {args.tag} no dsi-grupo4 e enviar ao GitHub?"):
+        print("Tag nao criada.")
         return 0
-    for repo in (DSI, pisi):
-        subprocess.run(["git", "-C", str(repo), "tag", "-a", args.tag, "-m",
-                        "Versao apresentada em DSI e PISI3 em 21/10/2026"], check=True)
-        subprocess.run(["git", "-C", str(repo), "push", "origin", args.tag], check=True)
-    ok(f"tag {args.tag} criada e enviada nos dois repositorios")
+    subprocess.run(["git", "-C", str(DSI), "tag", "-a", args.tag, "-m",
+                    "Versao apresentada em DSI em 21/10/2026"], check=True)
+    subprocess.run(["git", "-C", str(DSI), "push", "origin", args.tag], check=True)
+    ok(f"tag {args.tag} criada e enviada no dsi-grupo4")
     return 0
 
 
