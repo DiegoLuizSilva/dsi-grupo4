@@ -125,6 +125,27 @@ Acrescentar uma linha a cada execução relevante. O relatório completo de cada
 | 16/10/2026 | `testar_api_publicada.py` | Render, commit `ff421fc` | 30/30 | `docs/evidencias/teste_api_publicada_2026-10-16_1248.md` |
 | 16/10/2026 | gravação do histórico pelo app | app no navegador + Render + regra do Firestore publicada | avaliação da cliente Eduarda Freitas gravada em `clientes/demo-05/avaliacoes`, sem aviso de falha | conferido no console do Firebase |
 | 16/10/2026 | `src/validar_inferencia.py --dsi-root` (pisi3-grupo4) | local (Windows 11, Python 3.12), pisi3-grupo4 `740f8bb` × dsi-grupo4 `c44b4e99` | sem divergência: modelo `13d946fbcaa2`, 633 escores do teste com erro máximo 1,1e-16; atributos, exclusão de age_group e ordem do SHAP iguais | saída do terminal |
+| 19/10/2026 | tempo de avaliação pelo app no celular | Samsung Galaxy S23, Android atualizado, Expo Go, Wi-Fi doméstico, Render, commit `201cdd7` | serviço dormindo: falha em cerca de 6 a 7 s; serviço acordado: cerca de 2 s em mais de 5 avaliações, todas gravadas no histórico | descrito abaixo |
+| 19/10/2026 | faixas, fatores, pesos e sugestões no app | mesmo aparelho e rede, Render, commit `201cdd7` | os sete clientes de demonstração mostraram faixa, fatores, sentido, barras e sugestões iguais aos calculados pela rota `/predict` local | descrito abaixo |
+
+## Tempo de avaliação no aplicativo
+
+Medição do tempo completo de uma avaliação no celular, pedida na Sprint 6 com limite de 3 segundos.
+
+- **Data e quem executou:** 19/10/2026, Diego Luiz.
+- **Aparelho e rede:** Samsung Galaxy S23 com a versão mais recente do Android disponível para o aparelho, app rodando no Expo Go (modo de desenvolvimento, um pouco mais lento que um build), Wi-Fi doméstico, API publicada no Render, commit `201cdd7`.
+- **O que foi medido:** do toque em *Avaliar risco de cancelamento* até a tela de resultado com faixa e fatores. Inclui a chamada a `/predict` (modelo e SHAP) e a gravação no histórico, que acontece antes da troca de tela. Os tempos foram estimados por quem testou, sem gravação de tela.
+- **Serviço dormindo:** a primeira avaliação, depois de mais de 15 minutos sem uso, terminou em cerca de 6 a 7 s com o aviso *Serviço indisponível* (mensagem do cliente HTTP: "Nao foi possivel alcancar o servidor de analise"). Logo depois, o `/health` respondeu com `modelo.carregado: true`, `modelo_versao: rf-smotenc-1.0`, `explicacao: local`, `banco.conectado: true`, `autenticacao_exigida: true` e `stub_permitido: false`. O aviso *Cannot connect to Expo CLI* que apareceu junto é do Expo Go, sobre a conexão com o servidor de desenvolvimento, e não da API.
+- **Serviço acordado:** mais de 5 clientes avaliados em sequência, cada um em cerca de 2 s, dentro do limite de 3 s. Houve resultados de risco baixo (a maioria), médio e alto. Nenhuma avaliação mostrou *Avaliação não registrada*.
+- **Limitação conhecida:** com o plano gratuito, o Render desliga o serviço após 15 minutos sem uso, e a primeira chamada depois disso falha no app antes de o serviço terminar de acordar. O aviso não confirma uma avaliação falsa, e uma nova tentativa com o serviço acordado funciona. A mitigação para a demonstração já está em `docs/RECUPERACAO_E_DEMONSTRACAO.md`: abrir o `/health` 30 minutos antes e de novo 5 minutos antes.
+
+## Faixas, fatores e sugestões no aplicativo
+
+Conferência pedida na Sprint 7: a regra das faixas nos limites de 0,30 e 0,65 e a consistência de fatores, pesos e sugestões no app.
+
+- **Limites das faixas:** cobertos de forma automática pela seção "Faixas de risco nos limites" de `testar_predicao.py` (0,2999 baixo; 0,30 médio; 0,65 médio; 0,6501 alto) e pelo caso 1624 de `ml/validar_integracao_dsi.py` (escore 0,650, faixa média). O app não exibe o escore, então os limites não aparecem na tela.
+- **No app (19/10/2026, Diego Luiz, Samsung Galaxy S23, Expo Go, Render, commit `201cdd7`):** os sete clientes de demonstração foram avaliados e comparados com o resultado esperado, obtido passando os mesmos casos de `ml/artefatos/casos_de_referencia.json` pela rota `/predict` local, com o mesmo código e o mesmo modelo publicados. Para cada cliente conferiu-se a faixa (texto e cor), os três fatores na ordem, o sentido (aumenta ou reduz) e a cor da barra, o tamanho relativo das barras e se a sugestão combina com o sentido.
+- **Resultado:** os sete conferiram: Ana Beatriz Lima, Bruno Carvalho, Carla Menezes e Daniel Souza em risco baixo; Fabio Nascimento em risco médio (escore 0,319, o mais próximo do corte de 0,30); Eduarda Freitas e Gabriela Rocha em risco alto. Nenhuma avaliação mostrou *Avaliação não registrada*. Fatores que aumentam o risco em clientes de risco baixo (Carla, Daniel) são esperados: cada fator mostra o próprio sentido, e a faixa resulta da soma das contribuições.
 
 ## Instalação a partir de um clone limpo
 
