@@ -1,9 +1,6 @@
+
 /**
- * Perfil da pessoa que USA o aplicativo, guardado na coleção "pessoas"
- * do Firestore com o uid do Firebase Authentication como identificador.
- *
- * Não confundir com Cliente, que é o assinante avaliado pelo modelo e
- * não possui conta nem login.
+ * Perfil do usuário autenticado no aplicativo.
  */
 export interface Perfil {
   uid: string;
@@ -12,9 +9,11 @@ export interface Perfil {
   criadoEm?: unknown;
   atualizadoEm?: unknown;
 }
-// Atributos de uso que alimentam o modelo. Correspondem às colunas do
-// Iranian Churn Dataset. Nomes em camelCase; a tradução para snake_case
-// da API acontece em services/churnService.ts.
+
+/**
+ * Atributos utilizados para avaliação de churn.
+ * O app usa camelCase; a API recebe snake_case.
+ */
 export interface DadosDeUso {
   callFailure: number;
   complains: boolean;
@@ -46,7 +45,6 @@ export interface Fator {
   sugestao: string;
 }
 
-// Resposta do POST /predict. Ver api/CONTRATO.md.
 export interface ResultadoPredicao {
   probabilidade: number;
   faixa: 'baixo' | 'medio' | 'alto';
@@ -56,28 +54,48 @@ export interface ResultadoPredicao {
   gerado_em: string;
 }
 
-// Registro histórico de uma avaliação, em clientes/{clienteId}/avaliacoes.
+/**
+ * Avaliação armazenada no Firestore.
+ *
+ * O registro mantém os atributos e a resposta original
+ * para que futuras edições do cliente não alterem o passado.
+ */
 export interface Avaliacao {
   id?: string;
   clienteId: string;
   clienteNome: string;
   uid: string;
   criadoEm: Date;
-  // Cópia do que foi enviado à API, para que editar o cliente não altere o passado.
   entrada: Record<string, number>;
-  // Resposta da API como veio. A probabilidade fica só no registro, não aparece na tela.
   resultado: ResultadoPredicao;
   faixa: 'baixo' | 'medio' | 'alto';
   rotuloFaixa: string;
   modeloVersao: string;
 }
 
-// Rotas da pilha de navegação.
+/**
+ * Rotas utilizadas pela aplicação.
+ */
 export type RootStackParamList = {
   Login: undefined;
   SignUp: undefined;
   ClientList: undefined;
   ClientForm: { cliente?: Cliente } | undefined;
-  PredictResult: { cliente: Cliente; resultado: ResultadoPredicao };
-  ClientHistory: { cliente: Cliente };
+
+  ClientHistory: {
+    cliente: Cliente;
+  };
+
+  PredictResult: {
+    cliente: Cliente;
+    resultado: ResultadoPredicao;
+
+    // Só existe quando a tela abre uma avaliação anterior.
+    historico?: {
+      id?: string;
+      clienteNome: string;
+      criadoEm: string;
+      entrada: Record<string, number>;
+    };
+  };
 };
