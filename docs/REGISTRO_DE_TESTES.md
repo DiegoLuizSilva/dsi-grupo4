@@ -127,6 +127,7 @@ Acrescentar uma linha a cada execução relevante. O relatório completo de cada
 | 16/10/2026 | `src/validar_inferencia.py --dsi-root` (pisi3-grupo4) | local (Windows 11, Python 3.12), pisi3-grupo4 `740f8bb` × dsi-grupo4 `c44b4e99` | sem divergência: modelo `13d946fbcaa2`, 633 escores do teste com erro máximo 1,1e-16; atributos, exclusão de age_group e ordem do SHAP iguais | saída do terminal |
 | 19/10/2026 | tempo de avaliação pelo app no celular | Samsung Galaxy S23, Android atualizado, Expo Go, Wi-Fi doméstico, Render, commit `201cdd7` | serviço dormindo: falha em cerca de 6 a 7 s; serviço acordado: cerca de 2 s em mais de 5 avaliações, todas gravadas no histórico | descrito abaixo |
 | 19/10/2026 | faixas, fatores, pesos e sugestões no app | mesmo aparelho e rede, Render, commit `201cdd7` | os sete clientes de demonstração mostraram faixa, fatores, sentido, barras e sugestões iguais aos calculados pela rota `/predict` local | descrito abaixo |
+| 19/10/2026 | `ml/validar_integracao_dsi.py --api-url` | local (Ubuntu, `api/venv`, Python 3.12.3) contra o Render, commit `7b17176`, conta autenticada do grupo | modelo `13d946fb…`; 633 escores do teste reproduzidos (desvio máximo 1,1e-16); 5 casos de referência iguais no artefato e na API publicada; maior duração HTTP 1,161 s | descrito abaixo |
 
 ## Tempo de avaliação no aplicativo
 
@@ -146,6 +147,25 @@ Conferência pedida na Sprint 7: a regra das faixas nos limites de 0,30 e 0,65 e
 - **Limites das faixas:** cobertos de forma automática pela seção "Faixas de risco nos limites" de `testar_predicao.py` (0,2999 baixo; 0,30 médio; 0,65 médio; 0,6501 alto) e pelo caso 1624 de `ml/validar_integracao_dsi.py` (escore 0,650, faixa média). O app não exibe o escore, então os limites não aparecem na tela.
 - **No app (19/10/2026, Diego Luiz, Samsung Galaxy S23, Expo Go, Render, commit `201cdd7`):** os sete clientes de demonstração foram avaliados e comparados com o resultado esperado, obtido passando os mesmos casos de `ml/artefatos/casos_de_referencia.json` pela rota `/predict` local, com o mesmo código e o mesmo modelo publicados. Para cada cliente conferiu-se a faixa (texto e cor), os três fatores na ordem, o sentido (aumenta ou reduz) e a cor da barra, o tamanho relativo das barras e se a sugestão combina com o sentido.
 - **Resultado:** os sete conferiram: Ana Beatriz Lima, Bruno Carvalho, Carla Menezes e Daniel Souza em risco baixo; Fabio Nascimento em risco médio (escore 0,319, o mais próximo do corte de 0,30); Eduarda Freitas e Gabriela Rocha em risco alto. Nenhuma avaliação mostrou *Avaliação não registrada*. Fatores que aumentam o risco em clientes de risco baixo (Carla, Daniel) são esperados: cada fator mostra o próprio sentido, e a faixa resulta da soma das contribuições.
+
+## Conferência final dos casos de referência na API publicada
+
+Conferência pedida na Sprint 9: comparar os casos de referência do modelo com as respostas da API publicada e registrar a versão verificada.
+
+- **Data e quem executou:** 19/10/2026, Diego Luiz, com `api/venv/bin/python ml/validar_integracao_dsi.py --api-url https://dsi-grupo4.onrender.com`, autenticado com uma conta do grupo (token do Firebase na variável `CHURNGUARD_ID_TOKEN`, sem gravar nada na carteira).
+- **Versão verificada:** dsi-grupo4 no commit `7b17176`, modelo `rf-smotenc-1.0` com SHA-256 `13d946fb…` (conferido pelo script antes da comparação), serviço do Render acordado pelo `/health` antes da execução.
+- **Artefato:** os 633 escores do conjunto de teste do pisi3-grupo4 reproduzidos com desvio máximo de 1,1e-16.
+- **Casos de referência (`ml/reports/casos_shap_referencia.json`):** os cinco casos deram a mesma classe positiva, escore, faixa e fatores no artefato local e na API publicada:
+
+| row_id | Escore | Faixa | Fatores |
+|---|---:|---|---|
+| 110 | 0,0950 | baixo | status, call_failure, complains |
+| 516 | 0,2863 | baixo | status, age, call_failure |
+| 399 | 0,5150 | medio | subscription_length, complains, status |
+| 1624 | 0,6500 | medio | complains, customer_value, status |
+| 72 | 0,9000 | alto | complains, status, call_failure |
+
+- **Tempo:** maior duração local 0,028 s com TreeSHAP; maior duração HTTP na API publicada 1,161 s. O tempo completo no celular está na seção "Tempo de avaliação no aplicativo".
 
 ## Instalação a partir de um clone limpo
 
