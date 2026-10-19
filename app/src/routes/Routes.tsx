@@ -3,6 +3,7 @@ import { ActivityIndicator, Alert, StyleSheet, Text, TouchableOpacity, View } fr
 import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
 import { createNativeStackNavigator } from '@react-navigation/native-stack';
 import { NavigationContainer } from '@react-navigation/native';
+import { Feather } from '@expo/vector-icons';
 
 import Home from '../screens/Home';
 import ClientList from '../screens/ClientList';
@@ -41,6 +42,13 @@ function PilhaCadastro() {
   );
 }
 
+// Ícone de cada aba, na cor que a barra repassa (ativa ou inativa).
+function iconeDaAba(nome: React.ComponentProps<typeof Feather>['name']) {
+  return ({ color, size }: { color: string; size: number }) => (
+    <Feather name={nome} size={size} color={color} />
+  );
+}
+
 function AbasAutenticadas() {
   return (
     <Tab.Navigator
@@ -50,9 +58,17 @@ function AbasAutenticadas() {
         headerShown: false,
       }}
     >
-      <Tab.Screen name="Home" component={Home} options={{ title: 'Início' }} />
-      <Tab.Screen name="Clientes" component={PilhaClientes} options={{ title: 'Clientes' }} />
-      <Tab.Screen name="Cadastro" component={PilhaCadastro} options={{ title: 'Novo Cliente' }} />
+      <Tab.Screen name="Home" component={Home} options={{ title: 'Início', tabBarIcon: iconeDaAba('home') }} />
+      <Tab.Screen
+        name="Clientes"
+        component={PilhaClientes}
+        options={{ title: 'Clientes', tabBarIcon: iconeDaAba('users') }}
+      />
+      <Tab.Screen
+        name="Cadastro"
+        component={PilhaCadastro}
+        options={{ title: 'Novo Cliente', tabBarIcon: iconeDaAba('user-plus') }}
+      />
     </Tab.Navigator>
   );
 }

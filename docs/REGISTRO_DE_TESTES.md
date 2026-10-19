@@ -128,6 +128,7 @@ Acrescentar uma linha a cada execução relevante. O relatório completo de cada
 | 19/10/2026 | tempo de avaliação pelo app no celular | Samsung Galaxy S23, Android atualizado, Expo Go, Wi-Fi doméstico, Render, commit `201cdd7` | serviço dormindo: falha em cerca de 6 a 7 s; serviço acordado: cerca de 2 s em mais de 5 avaliações, todas gravadas no histórico | descrito abaixo |
 | 19/10/2026 | faixas, fatores, pesos e sugestões no app | mesmo aparelho e rede, Render, commit `201cdd7` | os sete clientes de demonstração mostraram faixa, fatores, sentido, barras e sugestões iguais aos calculados pela rota `/predict` local | descrito abaixo |
 | 19/10/2026 | `ml/validar_integracao_dsi.py --api-url` | local (Ubuntu, `api/venv`, Python 3.12.3) contra o Render, commit `7b17176`, conta autenticada do grupo | modelo `13d946fb…`; 633 escores do teste reproduzidos (desvio máximo 1,1e-16); 5 casos de referência iguais no artefato e na API publicada; maior duração HTTP 1,161 s | descrito abaixo |
+| 19/10/2026 | casos de aceite do login | Samsung Galaxy S23, Expo Go, Firebase Authentication | 6 de 6 casos conforme o esperado | descrito abaixo |
 
 ## Tempo de avaliação no aplicativo
 
@@ -166,6 +167,19 @@ Conferência pedida na Sprint 9: comparar os casos de referência do modelo com 
 | 72 | 0,9000 | alto | complains, status, call_failure |
 
 - **Tempo:** maior duração local 0,028 s com TreeSHAP; maior duração HTTP na API publicada 1,161 s. O tempo completo no celular está na seção "Tempo de avaliação no aplicativo".
+
+## Casos de aceite do login
+
+Casos pedidos na Sprint 3 para o fluxo de login, proteção das rotas e logout. Foram executados durante o desenvolvimento, mas não tinham sido registrados; o registro abaixo é da repetição em 19/10/2026, por Diego Luiz, no Samsung Galaxy S23 com Expo Go.
+
+| Caso | Esperado | Obtido | Resultado |
+|---|---|---|---|
+| 1. Campos vazios ou e-mail inválido | mensagem de validação ao tocar em *Entrar*, sem chamar o Firebase | nenhuma mensagem antes da tentativa; ao tocar em *Entrar*, a mensagem de validação aparece | passou |
+| 2. Senha incorreta | mensagem compreensível, sem dizer qual dado está errado | "E-mail ou senha incorretos." | passou |
+| 3. Envios repetidos | botão bloqueado enquanto a solicitação está em andamento | botão bloqueado durante o carregamento; depois de várias tentativas seguidas, o Firebase limitou as tentativas e o app mostrou "Muitas tentativas seguidas. Aguarde alguns minutos." | passou |
+| 4. Sessão restaurada | ao fechar e reabrir o app, entrar direto, sem novo login | entrou direto | passou |
+| 5. Conta válida e perfil | login aceito e Home com o nome carregado do perfil no Firestore | entrou normalmente, com o perfil carregado | passou |
+| 6. Logout | voltar à tela de login, sem acesso às telas internas | voltou ao login; o botão voltar do Android na tela de login fecha o app, sem retornar às telas internas | passou |
 
 ## Instalação a partir de um clone limpo
 
