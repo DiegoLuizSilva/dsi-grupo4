@@ -13,8 +13,9 @@ import { useNavigation } from '@react-navigation/native';
 import { BottomTabNavigationProp } from '@react-navigation/bottom-tabs';
 
 import { useAuth } from '../contexts/AuthContext';
-import { obterPerfil } from '../services/perfilService';
+import { atualizarPerfil, obterPerfil } from '../services/perfilService';
 import { Perfil } from '../types';
+import MinhaConta from './MinhaConta';
 
 // Abas registradas em AbasAutenticadas. Declarado aqui porque só a Home
 // precisa navegar entre abas.
@@ -47,6 +48,9 @@ export default function Home() {
   const [perfil, setPerfil] = useState<Perfil | null>(null);
   const [carregando, setCarregando] = useState(true);
   const [saindo, setSaindo] = useState(false);
+  const [contaAberta, setContaAberta] = useState(false);
+  // Muda ao fechar "Minha conta", para recarregar o perfil com o nome novo.
+  const [versaoPerfil, setVersaoPerfil] = useState(0);
 
   useEffect(() => {
     let ativo = true;
@@ -58,7 +62,16 @@ export default function Home() {
       }
 
       try {
-        const encontrado = await obterPerfil(usuario.uid);
+        let encontrado = await obterPerfil(usuario.uid);
+
+        // Depois de trocar o e-mail pelo link de confirmação, o login já usa o
+        // endereço novo, mas o perfil ainda guarda o antigo. Acerta aqui.
+        const emailDoLogin = usuario.email?.toLowerCase();
+        if (encontrado && emailDoLogin && encontrado.email !== emailDoLogin) {
+          await atualizarPerfil(usuario.uid, { email: emailDoLogin });
+          encontrado = { ...encontrado, email: emailDoLogin };
+        }
+
         if (ativo) setPerfil(encontrado);
       } catch (erro) {
         // A saudação cai para o displayName do Auth. Falha ao ler o perfil
@@ -73,7 +86,12 @@ export default function Home() {
     return () => {
       ativo = false;
     };
-  }, [usuario]);
+  }, [usuario, versaoPerfil]);
+
+  const fecharConta = () => {
+    setContaAberta(false);
+    setVersaoPerfil((v) => v + 1);
+  };
 
   const confirmarSaida = () => {
     Alert.alert('Sair da conta', 'Deseja encerrar a sessão?', [
@@ -118,18 +136,29 @@ export default function Home() {
             <Text style={estilos.marca}>ChurnGuard</Text>
           </View>
 
-          <Pressable
-            style={({ pressed }) => [estilos.botaoSair, pressed && estilos.botaoSairPressionado]}
-            onPress={confirmarSaida}
-            accessibilityRole="button"
-            disabled={saindo}
-          >
-            {saindo ? (
-              <ActivityIndicator size="small" color="#fff" />
-            ) : (
-              <Text style={estilos.botaoSairTexto}>Sair ↗</Text>
-            )}
-          </Pressable>
+          <View style={estilos.acoesTopo}>
+            <Pressable
+              style={({ pressed }) => [estilos.botaoSair, pressed && estilos.botaoSairPressionado]}
+              onPress={() => setContaAberta(true)}
+              accessibilityRole="button"
+              disabled={saindo}
+            >
+              <Text style={estilos.botaoSairTexto}>Minha conta</Text>
+            </Pressable>
+
+            <Pressable
+              style={({ pressed }) => [estilos.botaoSair, pressed && estilos.botaoSairPressionado]}
+              onPress={confirmarSaida}
+              accessibilityRole="button"
+              disabled={saindo}
+            >
+              {saindo ? (
+                <ActivityIndicator size="small" color="#fff" />
+              ) : (
+                <Text style={estilos.botaoSairTexto}>Sair ↗</Text>
+              )}
+            </Pressable>
+          </View>
         </View>
 
         <Text style={estilos.saudacao}>{nome ? 'Olá, ' + nome + '!' : 'Olá!'}</Text>
@@ -190,6 +219,8 @@ export default function Home() {
           </View>
         </View>
       </View>
+
+      <MinhaConta visivel={contaAberta} nomeAtual={nomeCompleto} aoFechar={fecharConta} />
     </ScrollView>
   );
 }
@@ -216,6 +247,7 @@ const estilos = StyleSheet.create({
     marginBottom: 24,
   },
   identidade: { flexDirection: 'row', alignItems: 'center', gap: 10 },
+  acoesTopo: { flexDirection: 'row', alignItems: 'center', gap: 8 },
   avatar: {
     width: 34,
     height: 34,

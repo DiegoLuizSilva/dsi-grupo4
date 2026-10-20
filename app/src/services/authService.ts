@@ -1,14 +1,20 @@
 import {
   createUserWithEmailAndPassword,
+  deleteUser,
+  EmailAuthProvider,
   onAuthStateChanged,
+  reauthenticateWithCredential,
   sendPasswordResetEmail,
   signInWithEmailAndPassword,
   signOut,
+  updatePassword,
   updateProfile,
   User,
+  verifyBeforeUpdateEmail,
 } from 'firebase/auth';
 
 import { auth } from '../database/firebaseConfig';
+import { atualizarPerfil, removerPerfil } from './perfilService';
 
 export class AuthError extends Error {
   codigo: string;
@@ -32,6 +38,9 @@ const MENSAGENS: Record<string, string> = {
   'auth/too-many-requests': 'Muitas tentativas seguidas. Aguarde alguns minutos.',
   'auth/network-request-failed': 'Sem conexão com a internet. Verifique a rede e tente de novo.',
   'auth/operation-not-allowed': 'Login por e-mail e senha não está habilitado no projeto.',
+  'auth/requires-recent-login': 'Por segurança, saia, entre de novo e repita a operação.',
+  'auth/missing-new-email': 'Informe o novo e-mail.',
+  'sessao/ausente': 'Sua sessão expirou. Entre novamente.',
 };
 
 function traduzirErro(erro: unknown): AuthError {
@@ -81,6 +90,82 @@ export async function recuperarSenha(email: string): Promise<void> {
     await sendPasswordResetEmail(auth, email.trim());
   } catch (erro) {
     throw traduzirErro(erro);
+  }
+}
+
+// ---------------------------------------------------------------- minha conta
+//
+// Alterar senha, e-mail ou excluir a conta são operações sensíveis: o Firebase
+// exige que a pessoa tenha entrado há pouco tempo. Em vez de depender disso,
+// cada operação pede a senha atual e reautentica antes de agir.
+
+function contaAtual(): User {
+  const usuario = auth.currentUser;
+  if (!usuario || !usuario.email) {
+    throw new AuthError(MENSAGENS['sessao/ausente'], 'sessao/ausente');
+  }
+  return usuario;
+}
+
+async function confirmarSenhaAtual(usuario: User, senhaAtual: string): Promise<void> {
+  const credencial = EmailAuthProvider.credential(usuario.email as string, senhaAtual);
+  await reauthenticateWithCredential(usuario, credencial);
+}
+
+/** Troca o nome no login (displayName) e no perfil do Firestore. */
+export async function alterarNome(nome: string): Promise<void> {
+  try {
+    const usuario = contaAtual();
+    await updateProfile(usuario, { displayName: nome.trim() });
+    await atualizarPerfil(usuario.uid, { nome: nome.trim() });
+  } catch (erro) {
+    throw erro instanceof AuthError ? erro : traduzirErro(erro);
+  }
+}
+
+export async function alterarSenha(senhaAtual: string, novaSenha: string): Promise<void> {
+  try {
+    const usuario = contaAtual();
+    await confirmarSenhaAtual(usuario, senhaAtual);
+    await updatePassword(usuario, novaSenha);
+  } catch (erro) {
+    throw erro instanceof AuthError ? erro : traduzirErro(erro);
+  }
+}
+
+/**
+ * Pede a troca do e-mail. O Firebase envia um link de confirmação para o
+ * novo endereço; o e-mail só muda depois do clique, e então a sessão é
+ * encerrada e a pessoa entra com o e-mail novo. O perfil no Firestore é
+ * atualizado na Home, no primeiro acesso depois da troca.
+ */
+export async function solicitarTrocaDeEmail(senhaAtual: string, novoEmail: string): Promise<void> {
+  try {
+    const usuario = contaAtual();
+    await confirmarSenhaAtual(usuario, senhaAtual);
+    await verifyBeforeUpdateEmail(usuario, novoEmail.trim().toLowerCase());
+  } catch (erro) {
+    throw erro instanceof AuthError ? erro : traduzirErro(erro);
+  }
+}
+
+/**
+ * Exclui o perfil em "pessoas" e a conta no Firebase Authentication.
+ *
+ * O perfil sai primeiro porque, depois de excluir a conta, a regra do
+ * Firestore não deixaria mais apagá-lo. Clientes e avaliações não são
+ * apagados: a carteira é da equipe, e cada avaliação guarda o uid de quem a
+ * fez como registro histórico. Ao excluir a conta, a sessão termina e a
+ * navegação volta sozinha para o login.
+ */
+export async function excluirConta(senhaAtual: string): Promise<void> {
+  try {
+    const usuario = contaAtual();
+    await confirmarSenhaAtual(usuario, senhaAtual);
+    await removerPerfil(usuario.uid);
+    await deleteUser(usuario);
+  } catch (erro) {
+    throw erro instanceof AuthError ? erro : traduzirErro(erro);
   }
 }
 
