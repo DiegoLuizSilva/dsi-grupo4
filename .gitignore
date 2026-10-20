@@ -35,3 +35,6 @@ ml/artefatos/*ensaio*
 
 # Backup criado pelo instalar.ps1.
 _backup_*/
+
+
+api/iniciar-api.sh

@@ -1,10 +1,12 @@
 
 import React, { useCallback, useRef, useState } from 'react';
 
+
 import {
   ActivityIndicator,
   Alert,
   FlatList,
+  Platform,
   StyleSheet,
   Text,
   TouchableOpacity,
@@ -16,7 +18,10 @@ import type { NativeStackNavigationProp } from '@react-navigation/native-stack';
 
 import { listarClientes, removerCliente } from '../services/dbService';
 import { analisarRiscoCliente } from '../services/churnService';
-import { salvarAvaliacao } from '../services/avaliacaoService';
+import {
+  salvarAvaliacao,
+  removerAvaliacoesDoCliente,
+} from '../services/avaliacaoService';
 
 import type { Cliente, RootStackParamList } from '../types';
 
@@ -129,9 +134,59 @@ export default function ClientList() {
   };
 
   const excluir = (cliente: Cliente) => {
+    if (!cliente.id) {
+      Alert.alert('Erro', 'Cliente sem identificador.');
+      return;
+    }
+
+    const executarExclusao = async () => {
+      if (!cliente.id) return;
+
+      try {
+        console.log('[EXCLUSAO] Iniciando:', cliente.id);
+
+        await removerAvaliacoesDoCliente(cliente.id);
+        console.log('[EXCLUSAO] Histórico removido');
+
+        await removerCliente(cliente.id);
+        console.log('[EXCLUSAO] Cliente removido');
+
+        await carregar();
+
+        if (Platform.OS === 'web') {
+          window.alert('Cliente e histórico removidos com sucesso.');
+        } else {
+          Alert.alert(
+            'Sucesso',
+            'Cliente e histórico removidos com sucesso.'
+          );
+        }
+      } catch (erro) {
+        console.error('[EXCLUSAO] Erro:', erro);
+
+        if (Platform.OS === 'web') {
+          window.alert('Não foi possível concluir a exclusão.');
+        } else {
+          Alert.alert('Erro', 'Não foi possível concluir a exclusão.');
+        }
+      }
+    };
+
+    if (Platform.OS === 'web') {
+      const confirmado = window.confirm(
+        `Deseja realmente remover ${cliente.nome} e todo o histórico de avaliações?`
+      );
+
+      if (confirmado) {
+        void executarExclusao();
+      }
+
+      return;
+    }
+
     Alert.alert(
       'Remover cliente',
-      `Deseja realmente remover ${cliente.nome}?`,
+      `Deseja realmente remover ${cliente.nome} e todo o histórico de avaliações?`,
       [
         {
           text: 'Cancelar',
@@ -140,20 +195,8 @@ export default function ClientList() {
         {
           text: 'Remover',
           style: 'destructive',
-          onPress: async () => {
-            if (!cliente.id) return;
-
-            try {
-              await removerCliente(cliente.id);
-              await carregar();
-            } catch (erro) {
-              console.error('Erro ao remover:', erro);
-
-              Alert.alert(
-                'Erro',
-                'Não foi possível remover o cliente.'
-              );
-            }
+          onPress: () => {
+            void executarExclusao();
           },
         },
       ]
