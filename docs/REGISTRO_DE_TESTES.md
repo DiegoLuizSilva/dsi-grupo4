@@ -129,6 +129,7 @@ Acrescentar uma linha a cada execução relevante. O relatório completo de cada
 | 19/10/2026 | faixas, fatores, pesos e sugestões no app | mesmo aparelho e rede, Render, commit `201cdd7` | os sete clientes de demonstração mostraram faixa, fatores, sentido, barras e sugestões iguais aos calculados pela rota `/predict` local | descrito abaixo |
 | 19/10/2026 | `ml/validar_integracao_dsi.py --api-url` | local (Ubuntu, `api/venv`, Python 3.12.3) contra o Render, commit `7b17176`, conta autenticada do grupo | modelo `13d946fb…`; 633 escores do teste reproduzidos (desvio máximo 1,1e-16); 5 casos de referência iguais no artefato e na API publicada; maior duração HTTP 1,161 s | descrito abaixo |
 | 19/10/2026 | casos de aceite do login | Samsung Galaxy S23, Expo Go, Firebase Authentication | 6 de 6 casos conforme o esperado | descrito abaixo |
+| 21/10/2026 | versão web no GitHub Pages | Chrome no Windows 11, `https://diegoluizsilva.github.io/dsi-grupo4/`, `main` em `be5a7e5`, Render com `CHURNGUARD_ORIGENS` incluindo o endereço | login com `demo.gestor1`; Eduarda Freitas em Risco alto e Fabio Nascimento em Risco médio, com fatores e sugestões; histórico do Fabio com a avaliação nova e as anteriores; pré-requisição CORS do `/predict` com 200 e `access-control-allow-origin` do site | descrito no README |
 
 ## Tempo de avaliação no aplicativo
 

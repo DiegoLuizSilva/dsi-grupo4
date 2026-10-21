@@ -54,7 +54,7 @@ Cada integrante é responsável por uma frente de trabalho ao longo das 9 semana
 | **Artur Rio** | Dados e não-supervisionado | Limpeza, EDA, gráficos, clusterização (KMeans, cotovelo, silhueta) |
 | **Diego Luiz** | Supervisionado | Pré-processamento, treino/teste, comparação de algoritmos, balanceamento, SHAP |
 | **Pedro Poroca** | Frontend — CRUD | Navegação, listagem, cadastro, edição e exclusão de clientes, persistência |
-| **Arthur Schmitz** | Frontend — Predição e UX | Formulário de predição, tela de resultado, histórico, design e formatação do artigo |
+| **Arthur Schmitz** | Somente PISI3 | Não participa de DSI; em PISI3, formatação e revisão do artigo e análise complementar dos perfis |
 
 ---
 
@@ -137,6 +137,30 @@ npx expo start               # tecla w abre no navegador
 ```
 
 Sem o `app/.env`, o app para com o erro `EXPO_PUBLIC_FIREBASE_API_KEY não definida`. Depois de alterar o `.env`, reinicie com `npx expo start -c`.
+
+### Versão web (protótipo)
+
+O app também está publicado como site em **https://diegoluizsilva.github.io/dsi-grupo4/**, com o mesmo login, carteira de clientes, avaliação de risco e histórico. Login, clientes e histórico falam direto com o Firebase; a avaliação chama a API do Render, que só aceita o site porque `https://diegoluizsilva.github.io` está na variável `CHURNGUARD_ORIGENS` do serviço. Se essa variável for alterada sem incluir o endereço, "Avaliar risco" falha no site.
+
+O site fica na branch `gh-pages`, separada da `main`. Para republicar depois de mudar o app (PowerShell, com `app/.env` apontando para o Render):
+
+```powershell
+cd app
+npx expo export --platform web
+New-Item dist\.nojekyll -ItemType File -Force
+$tmp = Join-Path $env:TEMP "churnguard-gh-pages"
+Remove-Item $tmp -Recurse -Force -ErrorAction SilentlyContinue
+Copy-Item dist $tmp -Recurse -Force
+cd $tmp
+git init -b gh-pages
+git add -A
+git commit -m "Publica a versao web do ChurnGuard"
+git push -f https://github.com/DiegoLuizSilva/dsi-grupo4.git gh-pages
+cd C:\dev\dsi-grupo4
+Remove-Item $tmp -Recurse -Force
+```
+
+O `experiments.baseUrl` do `app/app.json` (`/dsi-grupo4`) é o que faz o site funcionar fora da raiz do domínio, e o `.nojekyll` impede o GitHub Pages de esconder a pasta `_expo`.
 
 ### Machine Learning
 ```bash
