@@ -1,6 +1,6 @@
 {
   "expo": {
-    "name": "app",
+    "name": "ChurnGuard",
     "slug": "app",
     "version": "1.0.0",
     "orientation": "portrait",
@@ -19,6 +19,9 @@
     },
     "web": {
       "favicon": "./assets/favicon.png"
+    },
+    "experiments": {
+      "baseUrl": "/dsi-grupo4"
     }
   }
 }
